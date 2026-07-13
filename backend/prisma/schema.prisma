@@ -1,13 +1,50 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model Jogador {
+  id        String    @id @default(uuid())
+  nome      String
+  email     String    @unique
+  senha     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Um jogador pode fazer muitas reservas
+  reservas  Reserva[]
+}
+
+model Quadra {
+  id          String    @id @default(uuid())
+  nome        String
+  tipoEsporte String    // Ex: Futsal, Basquete, Vôlei, Beach Tennis
+  precoHora   Float
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Uma quadra pode ter muitas reservas agendadas
+  reservas    Reserva[]
+}
+
+model Reserva {
+  id          String   @id @default(uuid())
+  dataHora    DateTime // Data e hora do agendamento
+  duracaoHoras Int      @default(1) // Duração padrão de 1 hora
+  valorTotal  Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relacionamento com Jogador
+  jogadorId   String
+  jogador     Jogador  @relation(fields: [jogadorId], references: [id], onDelete: Cascade)
+
+  // Relacionamento com Quadra
+  quadraId    String
+  quadra      Quadra   @relation(fields: [quadraId], references: [id], onDelete: Cascade)
+
+  @@unique([quadraId, dataHora]) // Evita que a mesma quadra seja reservada no mesmo horário
 }
