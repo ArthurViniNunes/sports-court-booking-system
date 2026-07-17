@@ -1,18 +1,16 @@
 const express = require('express');
+const routes = require('./routes');
+require('dotenv').config();
 
 const app = express();
 
 app.use(express.json());
 
+app.use(routes);
 
-app.get('/hello', (req, res) => {
-  res.json({ 
-    message: "Hello World!", 
-    backendUrl: process.env.BACKEND_URL 
-  });
-});
+const PORT = process.env.PORT || 3000;
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost';
 
-const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`Servidor rodando em ${BACKEND_URL}:${PORT}`);
 });
