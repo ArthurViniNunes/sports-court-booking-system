@@ -1,20 +1,35 @@
-import prisma from '../database/prisma.js';
+import service from '../services/jogadoresService.js';
 
 const controller = {
-    create: (req, res) => {
-        // Implementation for creating a player
+    create: async (req, res, next) => {
+        const { nome, email, telefone } = req.body;
+        const player = await service.create({ nome, email, telefone });
+        return res.status(201).json(player);
     },
-    getAll: (req, res) => {
-        // Implementation for getting all players
+
+    getAll: async (req, res, next) => {
+        const players = await service.getAll();
+        return res.status(200).json(players);
+
     },
-    getById: (req, res) => {
-        // Implementation for getting a player by ID
+
+    getById: async (req, res, next) => {
+        const { id } = req.params;
+        const player = await service.getById(id);
+        return res.status(200).json(player);
     },
-    update: (req, res) => {
-        // Implementation for updating a player
+
+    update: async (req, res, next) => {
+        const { id } = req.params;
+        const { nome, email, telefone } = req.body;
+        const player = await service.update(id, { nome, email, telefone });
+        return res.status(200).json(player);
     },
-    delete: (req, res) => {
-        // Implementation for deleting a player
+
+    delete: async (req, res, next) => {
+        const { id } = req.params;
+        await service.delete(id);
+        return res.status(204).send();
     }
 };
 
