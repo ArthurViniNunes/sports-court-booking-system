@@ -23,7 +23,6 @@ const service = {
             throw new AppError('O horário de fim deve ser posterior ao horário de início', 400);
         }
 
-        // Verifica conflito de horário na mesma quadra
         const conflito = await prisma.reserva.findFirst({
             where: {
                 quadraId,
@@ -57,7 +56,6 @@ const service = {
     },
 
     getAll: async () => {
-        // Traz as reservas incluindo os dados do jogador e da quadra (Visualização de agenda)
         const reservas = await prisma.reserva.findMany({
             include: {
                 jogador: true,
@@ -93,7 +91,6 @@ const service = {
             whereClause.data = new Date(dataStr);
         }
 
-        // Retorna as reservas de uma quadra específica para o frontend calcular os horários livres/ocupados
         const reservas = await prisma.reserva.findMany({
             where: whereClause,
             include: { jogador: true, quadra: true },
@@ -125,11 +122,10 @@ const service = {
             throw new AppError('O horário de fim deve ser posterior ao horário de início', 400);
         }
 
-        // Se datas ou quadra mudaram, precisamos verificar novamente se há conflito (excluindo a reserva atual)
         if (updates.quadraId || updates.data || updates.horarioInicio || updates.horarioFim) {
             const conflito = await prisma.reserva.findFirst({
                 where: {
-                    id: { not: id }, // ignora a si mesmo
+                    id: { not: id },
                     quadraId: quadraValidacao,
                     data: dataValidacao,
                     AND: [

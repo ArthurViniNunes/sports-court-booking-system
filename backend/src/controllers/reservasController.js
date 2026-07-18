@@ -20,7 +20,7 @@ const controller = {
 
     getByQuadra: async (req, res, next) => {
         const { quadraId } = req.params;
-        const { data } = req.query; // Exemplo: /reservas/quadra/123?data=2023-10-25
+        const { data } = req.query;
         const reservas = await service.getByQuadra(quadraId, data);
         return res.status(200).json(reservas);
     },

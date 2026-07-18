@@ -1,5 +1,5 @@
 import express from 'express';
-import controller from '../controllers/reservasController.js'; // Ajuste o caminho se necessário
+import controller from '../controllers/reservasController.js';
 
 const router = express.Router();
 
