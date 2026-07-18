@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-require('dotenv').config(); 
+require('dotenv').config();
 
 const prisma = new PrismaClient({
   datasources: {

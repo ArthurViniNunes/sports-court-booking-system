@@ -7,44 +7,47 @@ datasource db {
 }
 
 model Jogador {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   nome      String
-  email     String    @unique
-  senha     String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  email     String   @unique
+  telefone  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Um jogador pode fazer muitas reservas
-  reservas  Reserva[]
+  reservas Reserva[]
 }
 
 model Quadra {
-  id          String    @id @default(uuid())
-  nome        String
-  tipoEsporte String    // Ex: Futsal, Basquete, Vôlei, Beach Tennis
-  precoHora   Float
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Uma quadra pode ter muitas reservas agendadas
-  reservas    Reserva[]
-}
-
-model Reserva {
   id          String   @id @default(uuid())
-  dataHora    DateTime // Data e hora do agendamento
-  duracaoHoras Int      @default(1) // Duração padrão de 1 hora
-  valorTotal  Float
+  nome        String
+  modalidade  String
+  localizacao String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relacionamento com Jogador
-  jogadorId   String
-  jogador     Jogador  @relation(fields: [jogadorId], references: [id], onDelete: Cascade)
+  // Uma quadra pode ter muitas reservas agendadas
+  reservas Reserva[]
+}
 
-  // Relacionamento com Quadra
-  quadraId    String
-  quadra      Quadra   @relation(fields: [quadraId], references: [id], onDelete: Cascade)
+model Reserva {
+  id            String   @id @default(uuid())
+  data          DateTime
+  horarioInicio DateTime
+  horarioFim    DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  @@unique([quadraId, dataHora]) // Evita que a mesma quadra seja reservada no mesmo horário
+  jogadorId String
+  jogador   Jogador @relation(fields: [jogadorId], references: [id], onDelete: Cascade)
+
+  quadraId String
+  quadra   Quadra @relation(fields: [quadraId], references: [id], onDelete: Cascade)
+
+  // Impede que um jogador faça mais de uma reserva na mesma quadra no mesmo horário
+  @@unique([quadraId, data, horarioInicio, horarioFim])
+  // Índices para otimizar consultas por quadra e data, e por jogador e data
+  // (Tópico mais avançado, mas útil para melhorar a performance de consultas frequentes)
+  @@index([quadraId, data])
+  @@index([jogadorId, data])
 }
