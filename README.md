@@ -26,3 +26,137 @@ Antes de começar, você precisará ter instalado em sua máquina:
 1. Navegue até a pasta do backend:
    ```bash
    cd backend
+   ```
+
+2. Instale as dependências:
+
+   ```bash
+   npm install
+   ```
+
+3. Crie um arquivo `.env` na raiz da pasta `backend` e configure as variáveis de ambiente:
+
+   ```env
+   DATABASE_URL="postgresql://usuario:senha@localhost:5432/agendamento_quadras"
+   PORT=3000
+   BACKEND_URL=http://localhost
+   ```
+
+4. Execute as migrações do banco de dados:
+
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. (Opcional) Abra o Prisma Studio para visualizar o banco:
+
+   ```bash
+   npx prisma studio
+   ```
+
+6. Inicie o servidor:
+
+   ```bash
+   npm run dev
+   ```
+
+O backend estará disponível em:
+
+```text
+http://localhost:3000
+```
+
+---
+
+### 2. Configurando o Frontend
+
+**TO-DO**
+
+---
+
+## 📂 Estrutura do Projeto
+
+```text
+├── backend
+│   ├── src
+│   │   ├── controllers
+│   │   ├── services
+│   │   ├── routes
+│   │   ├── middlewares
+│   │   ├── database
+│   │   └── utils
+│   ├── prisma
+│   └── package.json
+└── README.md
+```
+
+---
+
+## 🏗️ Arquitetura
+
+O backend segue uma arquitetura em camadas:
+
+- **Routes**: definem os endpoints da API.
+- **Controllers**: recebem as requisições HTTP e retornam as respostas.
+- **Services**: concentram as regras de negócio da aplicação.
+- **Prisma ORM**: responsável pela comunicação com o banco de dados PostgreSQL.
+- **Middlewares**: tratamento centralizado de erros e funcionalidades compartilhadas.
+
+Essa separação facilita a manutenção, os testes e a evolução do projeto.
+
+---
+
+## 📡 API
+
+A API segue o padrão REST.
+
+### Usuários
+
+| Método | Endpoint | Descrição |
+|---------|----------|-----------|
+| POST | `/usuarios` | Cadastra um usuário |
+| GET | `/usuarios` | Lista usuários |
+| GET | `/usuarios/:id` | Busca um usuário |
+| PUT | `/usuarios/:id` | Atualiza um usuário |
+| DELETE | `/usuarios/:id` | Remove um usuário |
+
+### Quadras
+
+| Método | Endpoint | Descrição |
+|---------|----------|-----------|
+
+**TO-DO**
+
+
+### Agendamentos
+
+
+| Método | Endpoint | Descrição |
+|---------|----------|-----------|
+
+**TO-DO**
+
+---
+
+## 🧪 Testando a API
+
+Você pode utilizar ferramentas como:
+
+- Postman
+- Insomnia
+- Thunder Client (VS Code)
+
+---
+
+## 👥 Equipe
+
+Projeto desenvolvido durante o programa **Avanti – Atlântico**, como parte do desafio **DFS-2026.2**.
+
+**Squad 03**:
+- [Arthur Vinicius Carneiro Nunes](https://github.com/arthurvininunes)
+- [Augusto Cesar do Nascimento](https://github.com/SpawNCGK)
+- [Francisco Rodrigo Rocha Mota](https://github.com/rodi38)
+- Ana Cecília de Oliveira
+- Alana Silva Sales
+- Alice Ralime dos Santos
+- Jusiê Barbosa da Silva
