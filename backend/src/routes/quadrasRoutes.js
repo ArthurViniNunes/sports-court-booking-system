@@ -1,8 +1,9 @@
 import express from 'express';
+import controller from '../controllers/quadrasController.js';
+
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    res.status(501).json({ status: 'Not implemented yet' });
-});
+router.get('/', controller.getAll);
+router.get('/:id', controller.getById);
 
 export default router;

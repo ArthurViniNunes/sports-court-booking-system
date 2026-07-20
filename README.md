@@ -124,6 +124,9 @@ A API segue o padrão REST.
 
 | Método | Endpoint | Descrição |
 |---------|----------|-----------|
+| GET | `/quadras` | Lista todas as quadras |
+| GET | `/quadras/:id` | Busca uma quadra por ID |
+
 
 **TO-DO**
 
@@ -156,7 +159,7 @@ Projeto desenvolvido durante o programa **Avanti – Atlântico**, como parte do
 - [Arthur Vinicius Carneiro Nunes](https://github.com/arthurvininunes)
 - [Augusto Cesar do Nascimento](https://github.com/SpawNCGK)
 - [Francisco Rodrigo Rocha Mota](https://github.com/rodi38)
-- Ana Cecília de Oliveira
+- [Ana Cecília de Oliveira](https://github.com/anaceciliaa)
 - Alana Silva Sales
 - Alice Ralime dos Santos
 - Jusiê Barbosa da Silva
