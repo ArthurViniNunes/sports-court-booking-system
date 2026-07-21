@@ -47,14 +47,20 @@ Antes de começar, você precisará ter instalado em sua máquina:
    ```bash
    npx prisma migrate dev
    ```
+5. (Opcional) Execute o seed para popular dados fictícios no banco de dados:
 
-5. (Opcional) Abra o Prisma Studio para visualizar o banco:
+   ```bash
+   npx prisma migrate dev
+   ```
+   
+
+6. (Opcional) Abra o Prisma Studio para visualizar o banco:
 
    ```bash
    npx prisma studio
    ```
 
-6. Inicie o servidor:
+7. Inicie o servidor:
 
    ```bash
    npm run dev
@@ -80,10 +86,10 @@ http://localhost:3000
 ├── backend
 │   ├── src
 │   │   ├── controllers
-│   │   ├── services
-│   │   ├── routes
-│   │   ├── middlewares
 │   │   ├── database
+│   │   ├── middlewares
+│   │   ├── routes
+│   │   ├── services
 │   │   └── utils
 │   ├── prisma
 │   └── package.json
@@ -128,14 +134,22 @@ A API segue o padrão REST.
 | GET | `/quadras/:id` | Busca uma quadra por ID |
 
 
-**TO-DO**
 
-
-### Agendamentos
-
+### Reservas
 
 | Método | Endpoint | Descrição |
 |---------|----------|-----------|
+| POST | `/reservas` | Cadastra uma reserva |
+| GET | `/reservas` | Lista todas reservas |
+| GET | `/reservas/:quadraId` | Busca todas reservas de uma quadra |
+| GET | `/reservas/:id` | Busca uma reserva |
+| PUT | `/reservas/:id` | Atualiza uma reserva |
+| DELETE | `/reservas/:id` | Remove uma reserva |
+
+
+**TO-DO**
+
+
 
 **TO-DO**
 
