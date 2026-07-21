@@ -50,7 +50,7 @@ Antes de começar, você precisará ter instalado em sua máquina:
 5. (Opcional) Execute o seed para popular dados fictícios no banco de dados:
 
    ```bash
-   npx prisma migrate dev
+   npm run db:seed
    ```
    
 
