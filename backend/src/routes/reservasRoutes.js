@@ -1,14 +1,16 @@
 import express from 'express';
 import controller from '../controllers/reservasController.js';
-import asyncHandler from '../middlewares/asyncHandler.js'
+import wrapController from '../utils/wrapController.js';
+
+const c = wrapController(controller);
 
 const router = express.Router();
 
-router.post('/', asyncHandler(controller.create));
-router.get('/', asyncHandler(controller.getAll));
-router.get('/:quadraId', asyncHandler(controller.getByQuadra));
-router.get('/:id', asyncHandler(controller.getById));
-router.put('/:id', asyncHandler(controller.update));
-router.delete('/:id', asyncHandler(controller.delete));
+router.post('/', c.create);
+router.get('/', c.getAll);
+router.get('/:quadraId', c.getByQuadra);
+router.get('/:id', c.getById);
+router.put('/:id', c.update);
+router.delete('/:id', c.delete);
 
 export default router;
