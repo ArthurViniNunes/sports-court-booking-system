@@ -174,6 +174,3 @@ Projeto desenvolvido durante o programa **Avanti – Atlântico**, como parte do
 - [Augusto Cesar do Nascimento](https://github.com/SpawNCGK)
 - [Francisco Rodrigo Rocha Mota](https://github.com/rodi38)
 - [Ana Cecília de Oliveira](https://github.com/anaceciliaa)
-- Alana Silva Sales
-- Alice Ralime dos Santos
-- Jusiê Barbosa da Silva
