@@ -76,10 +76,10 @@ http://localhost:3000
 
 ### 2. Configurando o Frontend
 
-**TO-DO**
 Para configurar o frontend basta rodar o comando ```bash npm install```na pasta do frontend.
 
-Entre na pasta do frontend para rodar o projeto com o comando ```bash npm run dev```
+Entre na pasta do frontend para rodar o projeto com o comando ```bash npm run dev```.
+
 ---
 
 ### 3. (Opcional) Rode com o mono repo.
