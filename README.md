@@ -76,9 +76,16 @@ http://localhost:3000
 
 ### 2. Configurando o Frontend
 
-**TO-DO**
+Para configurar o frontend basta rodar o comando ```bash npm install```na pasta do frontend.
+
+Entre na pasta do frontend para rodar o projeto com o comando ```bash npm run dev```.
 
 ---
+
+### 3. (Opcional) Rode com o mono repo.
+Depois de configurar o backend, caso deseje rodar o projeto em um único terminal, basta rodar os comandos na raiz do repositório.
+
+```bash npm install``` caso não tenha instalado as dependências ainda e ```bash npm run dev```para rodar tanto o backend quanto o frontend.
 
 ## 📂 Estrutura do Projeto
 
@@ -93,6 +100,17 @@ http://localhost:3000
 │   │   └── utils
 │   ├── prisma
 │   └── package.json
+│ 
+├── frontend/                 # Aplicação ReactJS (Vite)
+│   ├── src/
+│   │   ├── assets/           # Imagens e arquivos estáticos
+│   │   ├── components/       # Componentes visuais genéricos
+│   │   ├── features/         # Módulos por domínio (jogadores, quadras, reservas)
+│   │   ├── pages/            # Páginas e roteamento
+│   │   └── services/         # Configurações do Axios e chamadas de API
+│   └── package.json          # Dependências do frontend
+│
+├── package.json              # Gerenciador do Monorepo (Workspaces)
 └── README.md
 ```
 
