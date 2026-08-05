@@ -6,7 +6,10 @@
     "frontend"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\""
+    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:frontend": "npm run lint --workspace=frontend",
+    "lint:backend": "npm run lint --workspace=backend"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
