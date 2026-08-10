@@ -12,10 +12,10 @@ const router = express.Router();
 
 router.post('/', requireAuth, c.create);
 router.get('/', requireAuth, requireAdmin, c.getAll);
-router.get('/:quadraId',requireAuth, requireAdmin, c.getByQuadra);
-router.get('/:jogadorId', requireAuth,  c.getByJogadorId);
+router.get('/quadra/:quadraId',requireAuth, requireAdmin, c.getByQuadra);
+router.get('/jogador/:jogadorId', requireAuth,  c.getByJogadorId);
 router.get('/:id', requireAuth, c.getById);
 router.put('/:id', requireAuth, c.update);
 router.delete('/:id', requireAuth, requireAdmin, c.delete);
 
-export default router;
+export default router;  
