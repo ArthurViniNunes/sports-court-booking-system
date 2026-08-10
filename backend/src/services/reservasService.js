@@ -100,6 +100,21 @@ const service = {
         return reservas;
     },
 
+    getByJogadorId: async (jogadorId) => {
+        if (!jogadorId) throw new AppError('ID do jogador é obrigatório', 400);
+
+        const reservas = await prisma.reserva.findMany({
+            where: { jogadorId },
+            include: { jogador: true, quadra: true },
+            orderBy: [
+                { data: 'asc' },
+                { horarioInicio: 'asc' }
+            ]
+        });
+
+        return reservas;
+    },
+
     update: async (id, reservaData) => {
         if (!id) throw new AppError('ID da reserva é obrigatório para atualizar', 400);
 

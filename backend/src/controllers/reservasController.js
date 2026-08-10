@@ -18,6 +18,12 @@ const controller = {
         return res.status(200).json(reserva);
     },
 
+    getByJogadorId: async (req, res, next) => {
+        const { jogadorId } = req.params;
+        const reservas = await service.getByJogadorId(jogadorId);
+        return res.status(200).json(reservas);
+    },
+
     getByQuadra: async (req, res, next) => {
         const { quadraId } = req.params;
         const { data } = req.query;
