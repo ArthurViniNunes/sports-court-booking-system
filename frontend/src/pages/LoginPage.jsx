@@ -9,9 +9,14 @@ import {
   Link, 
   Stack 
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { authService } from '../services/authService';
 
 function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const navigate = useNavigate(); 
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -27,12 +32,31 @@ function LoginPage() {
     });
   };
 
-  const handleSubmit = (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isLogin) {
-      console.log('Fazer login com:', formData.email, formData.senha);
-    } else {
-      console.log('Fazer registro com:', formData);
+    setErrorMsg('');
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        await authService.login(formData.email, formData.senha);
+        navigate('/dashboard');
+      } else {
+        await authService.register({
+          nome: formData.nome,
+          email: formData.email,
+          telefone: formData.telefone,
+          senha: formData.senha
+        });
+        
+        await authService.login(formData.email, formData.senha);
+        navigate('/dashboard');
+      }
+    }catch (error) {
+        console.log(error);       
+        setErrorMsg(error.response?.data?.error || 'Ocorreu um erro ao conectar ao servidor.');
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -63,7 +87,12 @@ function LoginPage() {
 
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
-              
+              {errorMsg && (
+                <Typography variant="body2" color="error" sx={{ fontWeight: 600 }}>
+                  {errorMsg}
+                </Typography>
+              )}
+
               {/* Campos exclusivos do Registro */}
               {!isLogin && (
                 <>
@@ -115,8 +144,9 @@ function LoginPage() {
                 color="primary" 
                 fullWidth
                 sx={{ mt: 2 }}
+                disabled={loading}
               >
-                {isLogin ? 'Entrar' : 'Cadastrar'}
+                {loading ? (isLogin ? 'Entrando...' : 'Cadastrando...') : (isLogin ? 'Entrar' : 'Cadastrar')}
               </Button>
 
               <Box textAlign="center" mt={2}>
@@ -126,7 +156,10 @@ function LoginPage() {
                     component="button" 
                     type="button"
                     variant="body2" 
-                    onClick={() => setIsLogin(!isLogin)}
+                    onClick={() => {
+                      setErrorMsg('');
+                      setIsLogin(!isLogin);
+                    }}
                     sx={{ color: 'primary.main', fontWeight: 600, textDecoration: 'none' }}
                   >
                     {isLogin ? 'Cadastre-se' : 'Entrar'}
