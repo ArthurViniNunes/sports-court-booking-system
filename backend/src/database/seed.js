@@ -1,4 +1,5 @@
 import prisma from './prisma.js';
+import bcrypt from 'bcryptjs';
 
 async function main() {
     console.log('Iniciando seed...');
@@ -8,12 +9,30 @@ async function main() {
     await prisma.jogador.deleteMany();
     await prisma.quadra.deleteMany();
 
-    // 1. Criar Jogadores
+    // Criação de um salt e senha padrão para o seed
+    const salt = await bcrypt.genSalt(10);
+    const senhaHash = await bcrypt.hash('senha123', salt);
+
+
+    // 1. Criar Administrador (Única forma de criar admin)
+    const admin = await prisma.jogador.create({
+        data: {
+            nome: 'Administrador do Sistema',
+            email: 'admin@admin.com',
+            telefone: '00000000000',
+            senha: senhaHash,
+            isAdmin: true
+        }
+    });
+
+
+    // 2. Criar Jogadores
     const jogador1 = await prisma.jogador.create({
         data: {
             nome: 'Carlos Eduardo',
             email: 'carlos@email.com',
-            telefone: '11999999999'
+            telefone: '11999999999',
+            senha: senhaHash,
         }
     });
 
@@ -21,11 +40,12 @@ async function main() {
         data: {
             nome: 'Ana Beatriz',
             email: 'ana@email.com',
-            telefone: '11888888888'
+            telefone: '11888888888',
+            senha: senhaHash,
         }
     });
 
-    // 2. Criar Quadras
+    // 3. Criar Quadras
     const quadra1 = await prisma.quadra.create({
         data: {
             nome: 'Quadra Central',
@@ -42,7 +62,7 @@ async function main() {
         }
     });
 
-    // 3. Criar uma Reserva para o dia seguinte
+    // 4. Criar uma Reserva para o dia seguinte
     const hoje = new Date();
     // Marca para amanhã, das 10h às 11h
     const dataReserva = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + 1);
@@ -59,12 +79,12 @@ async function main() {
         }
     });
 
-    console.log('✅ Seed executado com sucesso!');
+    console.log('Seed executado com sucesso!');
 }
 
 main()
     .catch((e) => {
-        console.error('❌ Erro ao executar seed:', e);
+        console.error('Erro ao executar seed:', e);
         process.exit(1);
     })
     .finally(async () => {
