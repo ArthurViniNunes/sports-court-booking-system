@@ -1,11 +1,13 @@
 import { response } from 'express';
 import prisma from '../database/prisma.js';
 import AppError from '../utils/AppError.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const service = {
     create: async (jogador) => {
-        if (!jogador.nome || !jogador.email || !jogador.telefone) {
-            throw new AppError('Nome, email e telefone são obrigatórios', 400);
+        if (!jogador.nome || !jogador.email || !jogador.telefone || !jogador.senha) {
+            throw new AppError('Nome, email, telefone e senha são obrigatórios', 400);
         }
 
         // Esse é um regex simples para validar o formato do email. Ele verifica se o email contém um "@" e um "." após o "@".
@@ -20,13 +22,27 @@ const service = {
             throw new AppError('Email já cadastrado', 400);
         }
 
-        const player = await prisma.jogador.create({ data: jogador });
+
+        const salt = await bcrypt.genSalt(10);
+        const senhaHash = await bcrypt.hash(jogador.senha, salt);
+
+        const player = await prisma.jogador.create({ 
+            data: {
+                nome: jogador.nome,
+                email: jogador.email,
+                telefone: jogador.telefone,
+                senha: senhaHash,
+                isAdmin: false // Garante que ninguém se cadastre como admin pela rota
+            } 
+        });
 
         if (!player) {
             throw new AppError('Erro ao criar jogador', 500);
         }
 
-        return player;
+        // Remove a senha e a flag de admin do retorno por segurança.
+        const { senha, isAdmin, ...playerSemSenha } = player;
+        return playerSemSenha;
     },
 
     getAll: async () => {
