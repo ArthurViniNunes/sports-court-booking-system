@@ -10,7 +10,7 @@ const router = express.Router();
 router.post('/', requireAuth, requireAdmin, c.create);
 router.get('/', requireAuth, c.getAll);
 router.get('/:id', requireAuth, c.getById);
-router.put('/:id', requireAuth, c.update);
+router.put('/:id', requireAuth, requireAdmin, c.update);
 router.delete('/:id', requireAuth, requireAdmin, c.delete);
 
 export default router;
