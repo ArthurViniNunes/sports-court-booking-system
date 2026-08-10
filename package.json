@@ -5,6 +5,7 @@
     "backend",
     "frontend"
   ],
+    "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\"",
     "lint": "npm run lint --workspaces --if-present",
