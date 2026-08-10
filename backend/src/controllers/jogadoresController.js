@@ -1,11 +1,6 @@
 import service from '../services/jogadoresService.js';
 
 const controller = {
-    create: async (req, res, next) => {
-        const { nome, email, telefone } = req.body;
-        const player = await service.create({ nome, email, telefone });
-        return res.status(201).json(player);
-    },
 
     getAll: async (req, res, next) => {
         const players = await service.getAll();

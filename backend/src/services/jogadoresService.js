@@ -1,33 +1,10 @@
 import { response } from 'express';
 import prisma from '../database/prisma.js';
 import AppError from '../utils/AppError.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const service = {
-    create: async (jogador) => {
-        if (!jogador.nome || !jogador.email || !jogador.telefone) {
-            throw new AppError('Nome, email e telefone são obrigatórios', 400);
-        }
-
-        // Esse é um regex simples para validar o formato do email. Ele verifica se o email contém um "@" e um "." após o "@".
-        // (Novamente, algo mais avançado, náo se preocupa com isso agora, mas regex para email pode ser bem complexo)
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(jogador.email)) {
-            throw new AppError('Email inválido', 400);
-        }
-
-        const emailExists = await prisma.jogador.findUnique({ where: { email: jogador.email } });
-
-        if (emailExists) {
-            throw new AppError('Email já cadastrado', 400);
-        }
-
-        const player = await prisma.jogador.create({ data: jogador });
-
-        if (!player) {
-            throw new AppError('Erro ao criar jogador', 500);
-        }
-
-        return player;
-    },
 
     getAll: async () => {
         const players = await prisma.jogador.findMany();
