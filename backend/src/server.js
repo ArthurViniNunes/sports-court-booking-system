@@ -2,6 +2,7 @@ import express from 'express';
 import helmet from 'helmet';
 import routes from './routes/index.js';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import { errorMiddleware } from './middlewares/index.js';
 
 dotenv.config();
@@ -10,6 +11,7 @@ const app = express();
 
 app.use(express.json());
 
+app.use(cors());
 app.use(helmet());
 
 app.use(routes);
