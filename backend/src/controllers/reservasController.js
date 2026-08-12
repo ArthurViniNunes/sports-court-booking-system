@@ -27,7 +27,8 @@ const controller = {
     getByQuadra: async (req, res, next) => {
         const { quadraId } = req.params;
         const { data } = req.query;
-        const reservas = await service.getByQuadra(quadraId, data);
+        const loggedUser = req.user;
+        const reservas = await service.getByQuadra(quadraId, data, loggedUser);
         return res.status(200).json(reservas);
     },
 

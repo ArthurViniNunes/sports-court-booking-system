@@ -81,10 +81,9 @@ const service = {
         
         return reserva;
     },
-
-    getByQuadra: async (quadraId, dataStr) => {
+    
+    getByQuadra: async (quadraId, dataStr, usuarioLogado) => {
         if (!quadraId) throw new AppError('ID da quadra é obrigatório', 400);
-
         const whereClause = { quadraId };
         
         if (dataStr) {
@@ -97,9 +96,22 @@ const service = {
             orderBy: { horarioInicio: 'asc' }
         });
 
-        return reservas;
+        // Mascara os dados se o usuário não for dono da reserva e não for admin
+        return reservas.map(reserva => {
+            if (!usuarioLogado.isAdmin && reserva.jogadorId !== usuarioLogado.id) {
+                return {
+                    ...reserva,
+                    jogador: {
+                        id: 'hidden',
+                        nome: 'Ocupado',
+                        email: '',
+                        telefone: ''
+                    }
+                };
+            }
+            return reserva;
+        });
     },
-
     getByJogadorId: async (jogadorId) => {
         if (!jogadorId) throw new AppError('ID do jogador é obrigatório', 400);
 
