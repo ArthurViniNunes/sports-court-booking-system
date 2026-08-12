@@ -12,7 +12,8 @@ import {
   TableRow,
   TextField,
   InputAdornment,
-  Stack
+  Stack,
+  MenuItem
 } from '@mui/material';
 import { Search, Edit, Delete, Add } from '@mui/icons-material';
 import { authService } from '../services/authService';
@@ -23,10 +24,14 @@ import FormReservaDialog from '../features/reservas/components/FormReservaDIalog
 export default function ReservasPage() {
   const [reservas, setReservas] = useState([]);
   const [quadras, setQuadras] = useState([]);
+  
+  // Estados para os filtros
   const [searchTerm, setSearchTerm] = useState('');
+  const [filtroQuadra, setFiltroQuadra] = useState('');
+  const [filtroModalidade, setFiltroModalidade] = useState('');
+  
   const [openModal, setOpenModal] = useState(false);
   const [reservaEditando, setReservaEditando] = useState(null);
-
   const currentUser = authService.getCurrentUser();
 
   const carregarDados = async () => {
@@ -87,6 +92,7 @@ export default function ReservasPage() {
       } else {
         await reservasService.create(payload);
       }
+
       setOpenModal(false);
       carregarDados();
     } catch (error) {
@@ -108,32 +114,88 @@ export default function ReservasPage() {
     return `${tInicio} - ${tFim}`;
   };
 
+  const limparFiltros = () => {
+    setSearchTerm('');
+    setFiltroQuadra('');
+    setFiltroModalidade('');
+  };
+
+  // Obtém lista única de modalidades baseada nas quadras cadastradas
+  const modalidades = [...new Set(quadras.map(q => q.modalidade))];
+
+  // Aplicação de todos os filtros de forma combinada no frontend
   const reservasFiltradas = reservas.filter((r) => {
     const textoBusca = searchTerm.toLowerCase();
     const nomeQuadra = r.quadra?.nome.toLowerCase() || '';
     const modalidade = r.quadra?.modalidade.toLowerCase() || '';
     const dataFormatada = formatarData(r.data);
-    return nomeQuadra.includes(textoBusca) || modalidade.includes(textoBusca) || dataFormatada.includes(textoBusca);
+
+    const matchBusca = nomeQuadra.includes(textoBusca) || modalidade.includes(textoBusca) || dataFormatada.includes(textoBusca);
+    const matchQuadra = filtroQuadra ? r.quadraId === filtroQuadra : true;
+    const matchModalidade = filtroModalidade ? r.quadra?.modalidade === filtroModalidade : true;
+
+    return matchBusca && matchQuadra && matchModalidade;
   });
 
   return (
     <Box>
-      <Typography variant="h2" color="primary" gutterBottom>
-        Minhas Reservas
-      </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Acompanhe seus horários agendados.
-      </Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
+        <Box>
+          <Typography variant="h2" color="primary" gutterBottom>
+            Minhas Reservas
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Acompanhe seus horários agendados.
+          </Typography>
+        </Box>
+        <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleOpenCreate}>
+          Nova reserva
+        </Button>
+      </Stack>
 
       <Paper elevation={0} sx={{ p: 3, border: '1px solid #DAD7CD' }}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between" sx={{ mb: 3 }}>
+        <Typography variant="h3" color="primary" sx={{ mb: 3, fontSize: '1.2rem' }}>
+          Lista de reservas
+        </Typography>
+
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center" sx={{ mb: 3 }}>
+          <TextField
+            select
+            size="small"
+            value={filtroQuadra}
+            onChange={(e) => setFiltroQuadra(e.target.value)}
+            sx={{ minWidth: { xs: '100%', md: 200 } }}
+          >
+            <MenuItem value="">Todas as quadras</MenuItem>
+            {quadras.map((q) => (
+              <MenuItem key={q.id} value={q.id}>
+                {q.nome}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            select
+            size="small"
+            value={filtroModalidade}
+            onChange={(e) => setFiltroModalidade(e.target.value)}
+            sx={{ minWidth: { xs: '100%', md: 200 } }}
+          >
+            <MenuItem value="">Todas as modalidades</MenuItem>
+            {modalidades.map((m) => (
+              <MenuItem key={m} value={m}>
+                {m}
+              </MenuItem>
+            ))}
+          </TextField>
+
           <TextField
             variant="outlined"
             placeholder="Buscar por quadra ou data..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             size="small"
-            sx={{ minWidth: { xs: '100%', sm: '350px' } }}
+            sx={{ minWidth: { xs: '100%', md: 250 }, flexGrow: 1 }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -142,8 +204,14 @@ export default function ReservasPage() {
               ),
             }}
           />
-          <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleOpenCreate}>
-            Nova reserva
+
+          <Button 
+            variant="text" 
+            color="secondary" 
+            onClick={limparFiltros}
+            sx={{ minWidth: 'max-content', textDecoration: 'underline' }}
+          >
+            Limpar filtros
           </Button>
         </Stack>
 

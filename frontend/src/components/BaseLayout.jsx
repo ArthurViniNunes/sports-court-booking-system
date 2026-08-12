@@ -1,5 +1,5 @@
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, AppBar, Toolbar, Avatar, Typography } from '@mui/material';
-import { Home, EventAvailable, SportsTennis, Logout } from '@mui/icons-material';
+import { Home, EventAvailable, SportsTennis, Logout, CalendarMonth } from '@mui/icons-material';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { authService } from '../services/authService';
 
@@ -13,6 +13,8 @@ export default function BaseLayout() {
     { text: 'Início', path: '/dashboard', icon: <Home /> },
     { text: 'Reservas', path: '/reservas', icon: <EventAvailable /> },
     { text: 'Quadras', path: '/quadras', icon: <SportsTennis /> },
+    { text: 'Agenda', path: '/agenda', icon: <CalendarMonth /> },
+
   ];
 
   const handleLogout = () => {

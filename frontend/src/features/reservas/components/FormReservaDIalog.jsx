@@ -11,7 +11,8 @@ import {
   Typography
 } from '@mui/material';
 
-export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao, quadras }) {
+export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao, initialData, quadras }) {
+// export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao, quadras }) {
   const [formData, setFormData] = useState({
     quadraId: '',
     data: '',
@@ -38,6 +39,14 @@ export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao
         horarioInicio: horarioInicioFormatado,
         horarioFim: horarioFimFormatado
       });
+    } else if (initialData) {
+      // Novo: Configura dados baseados na Agenda
+      setFormData({
+        quadraId: initialData.quadraId || '',
+        data: initialData.data || '',
+        horarioInicio: initialData.horarioInicio || '',
+        horarioFim: initialData.horarioFim || ''
+      });
     } else {
       setFormData({
         quadraId: '',
@@ -46,7 +55,7 @@ export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao
         horarioFim: ''
       });
     }
-  }, [reservaEdicao, open]);
+  }, [reservaEdicao, initialData, open]);
 
   const handleChange = (e) => {
     setFormData({

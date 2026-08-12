@@ -11,6 +11,7 @@ import DashboardPage from './pages/DashboardPage';
 import QuadrasPage from './pages/QuadrasPage';
 import ReservasPage from './pages/ReservasPage';
 import PerfilPage from './pages/PerfilPage';
+import AgendaPage from './pages/AgendaPage';
 
 // Componente para proteger rotas que exigem login
 function PrivateRoute({ children }) {
@@ -28,8 +29,14 @@ function App() {
           <Route path="/" element={<Home />} />
           
           {/* Tela de Login/Registro */}
-          <Route path="/login" element={<LoginPage />} />
-          
+          <Route
+            path="/login"
+            element={
+              authService.getCurrentUser()
+                ? <Navigate to="/dashboard" replace />
+                : <LoginPage />
+            }
+          />          
           {/* Rotas Protegidas e Envolvidas pelo Layout */}
           <Route 
             path="/" 
@@ -42,6 +49,7 @@ function App() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="reservas" element={<ReservasPage />} />
             <Route path="quadras" element={<QuadrasPage />} />
+            <Route path="agenda" element={<AgendaPage />} />
             <Route path="perfil" element={<PerfilPage />} />
           </Route>
         </Routes>
