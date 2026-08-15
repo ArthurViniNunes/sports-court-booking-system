@@ -113,14 +113,34 @@ const service = {
         });
     },
 
-    getByJogadorId: async (jogadorId, page = 1, limit = 10) => {
+    getByJogadorId: async (jogadorId, page = 1, limit = 10, filters = {}) => {
         if (!jogadorId) {
             throw new AppError('ID do jogador é obrigatório', 400);
         }
 
+        
+
         const skip = (page - 1) * limit;
 
         const where = { jogadorId };
+
+        if (filters.quadraId) {
+            where.quadraId = filters.quadraId;
+        }
+
+        if (filters.modalidade || filters.search) {
+            where.quadra = {};
+            if (filters.modalidade) {
+                where.quadra.modalidade = filters.modalidade;
+            }
+            if (filters.search) {
+                // Busca textual por Nome ou Modalidade (insensível a maiúsculas/minúsculas)
+                where.quadra.OR = [
+                    { nome: { contains: filters.search, mode: 'insensitive' } },
+                    { modalidade: { contains: filters.search, mode: 'insensitive' } }
+                ];
+            }
+        }
 
         const [reservas, total] = await Promise.all([
             prisma.reserva.findMany({

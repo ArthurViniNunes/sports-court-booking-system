@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import {
   Typography,
@@ -13,7 +14,8 @@ import {
   TextField,
   InputAdornment,
   Stack,
-  MenuItem
+  MenuItem,
+  TablePagination
 } from '@mui/material';
 import { Search, Edit, Delete, Add } from '@mui/icons-material';
 import { authService } from '../services/authService';
@@ -25,42 +27,76 @@ export default function ReservasPage() {
   const [reservas, setReservas] = useState([]);
   const [quadras, setQuadras] = useState([]);
   
-  // Estados para os filtros
+  // Estados de paginação
+  const [page, setPage] = useState(0); 
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalReservas, setTotalReservas] = useState(0);
+
+  // Estados de filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [filtroQuadra, setFiltroQuadra] = useState('');
   const [filtroModalidade, setFiltroModalidade] = useState('');
   
   const [openModal, setOpenModal] = useState(false);
   const [reservaEditando, setReservaEditando] = useState(null);
+  
   const currentUser = authService.getCurrentUser();
 
   const carregarDados = async () => {
     try {
-      const [reservasData, quadrasData] = await Promise.all([
-        reservasService.getByJogador(currentUser.id),
+      const filtros = {
+        quadraId: filtroQuadra,
+        modalidade: filtroModalidade,
+        searchTerm: searchTerm
+      };
+
+      const [reservasResponse, quadrasData] = await Promise.all([
+        reservasService.getByJogador(currentUser.id, page + 1, rowsPerPage, filtros),
         quadrasService.getAll()
       ]);
-      setReservas(reservasData);
+      
+      setReservas(reservasResponse.data);
+      setTotalReservas(reservasResponse.pagination.total);
       setQuadras(quadrasData);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
     }
   };
 
+  // Efeito principal: escuta mudanças nos filtros e paginação
   useEffect(() => {
-    carregarDados();
-  }, []);
+    // Usamos um pequeno timeout (debounce) para não enviar requisição a cada tecla digitada na busca
+    const delayDebounceFn = setTimeout(() => {
+      carregarDados();
+    }, 400); // Aguarda 400ms após o usuário parar de digitar
 
-  const handleOpenCreate = () => {
-    setReservaEditando(null);
-    setOpenModal(true);
+    return () => clearTimeout(delayDebounceFn);
+  }, [page, rowsPerPage, searchTerm, filtroQuadra, filtroModalidade]);
+
+  // Handlers de Mudança
+  const handleChangePage = (event, newPage) => setPage(newPage);
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0); 
   };
 
-  const handleOpenEdit = (reserva) => {
-    setReservaEditando(reserva);
-    setOpenModal(true);
+  const handleFilterChange = (setter) => (e) => {
+    setter(e.target.value);
+    setPage(0); // Volta pra página 1 sempre que um filtro é alterado
   };
 
+  const limparFiltros = () => {
+    setSearchTerm('');
+    setFiltroQuadra('');
+    setFiltroModalidade('');
+    setPage(0);
+  };
+
+  // Funções de Modal e Formatação mantidas iguais
+  const handleOpenCreate = () => { setReservaEditando(null); setOpenModal(true); };
+  const handleOpenEdit = (reserva) => { setReservaEditando(reserva); setOpenModal(true); };
+  
   const handleDelete = async (id) => {
     if (window.confirm('Tem certeza que deseja excluir esta reserva?')) {
       try {
@@ -92,7 +128,6 @@ export default function ReservasPage() {
       } else {
         await reservasService.create(payload);
       }
-
       setOpenModal(false);
       carregarDados();
     } catch (error) {
@@ -114,28 +149,7 @@ export default function ReservasPage() {
     return `${tInicio} - ${tFim}`;
   };
 
-  const limparFiltros = () => {
-    setSearchTerm('');
-    setFiltroQuadra('');
-    setFiltroModalidade('');
-  };
-
-  // Obtém lista única de modalidades baseada nas quadras cadastradas
   const modalidades = [...new Set(quadras.map(q => q.modalidade))];
-
-  // Aplicação de todos os filtros de forma combinada no frontend
-  const reservasFiltradas = reservas.filter((r) => {
-    const textoBusca = searchTerm.toLowerCase();
-    const nomeQuadra = r.quadra?.nome.toLowerCase() || '';
-    const modalidade = r.quadra?.modalidade.toLowerCase() || '';
-    const dataFormatada = formatarData(r.data);
-
-    const matchBusca = nomeQuadra.includes(textoBusca) || modalidade.includes(textoBusca) || dataFormatada.includes(textoBusca);
-    const matchQuadra = filtroQuadra ? r.quadraId === filtroQuadra : true;
-    const matchModalidade = filtroModalidade ? r.quadra?.modalidade === filtroModalidade : true;
-
-    return matchBusca && matchQuadra && matchModalidade;
-  });
 
   return (
     <Box>
@@ -163,8 +177,9 @@ export default function ReservasPage() {
             select
             size="small"
             value={filtroQuadra}
-            onChange={(e) => setFiltroQuadra(e.target.value)}
+            onChange={handleFilterChange(setFiltroQuadra)}
             sx={{ minWidth: { xs: '100%', md: 200 } }}
+            SelectProps={{ displayEmpty: true }} // <-- Aqui resolvemos o select em branco
           >
             <MenuItem value="">Todas as quadras</MenuItem>
             {quadras.map((q) => (
@@ -178,8 +193,9 @@ export default function ReservasPage() {
             select
             size="small"
             value={filtroModalidade}
-            onChange={(e) => setFiltroModalidade(e.target.value)}
+            onChange={handleFilterChange(setFiltroModalidade)}
             sx={{ minWidth: { xs: '100%', md: 200 } }}
+            SelectProps={{ displayEmpty: true }} // <-- Aqui também
           >
             <MenuItem value="">Todas as modalidades</MenuItem>
             {modalidades.map((m) => (
@@ -191,9 +207,9 @@ export default function ReservasPage() {
 
           <TextField
             variant="outlined"
-            placeholder="Buscar por quadra ou data..."
+            placeholder="Buscar por quadra..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleFilterChange(setSearchTerm)}
             size="small"
             sx={{ minWidth: { xs: '100%', md: 250 }, flexGrow: 1 }}
             InputProps={{
@@ -204,7 +220,6 @@ export default function ReservasPage() {
               ),
             }}
           />
-
           <Button 
             variant="text" 
             color="secondary" 
@@ -226,8 +241,9 @@ export default function ReservasPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {reservasFiltradas.length > 0 ? (
-                reservasFiltradas.map((reserva) => (
+              {reservas.length > 0 ? (
+                // Note que aqui agora iteramos diretamente o estado 'reservas', sem filtro local
+                reservas.map((reserva) => (
                   <TableRow key={reserva.id}>
                     <TableCell>
                       <Typography variant="body1" sx={{ fontWeight: 600, color: 'primary.main' }}>
@@ -275,6 +291,17 @@ export default function ReservasPage() {
             </TableBody>
           </Table>
         </TableContainer>
+
+        <TablePagination
+          component="div"
+          count={totalReservas}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="Linhas por página:"
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+        />
       </Paper>
 
       <FormReservaDialog

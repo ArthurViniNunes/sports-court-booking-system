@@ -24,7 +24,10 @@ const controller = {
         const page = parseInt(req.query.page, 10) || 1;
         const limit = parseInt(req.query.limit, 10) || 10;
 
-        const reservas = await service.getByJogadorId(jogadorId, page, limit);
+        const { quadraId, modalidade, search } = req.query;
+        const filters = { quadraId, modalidade, search };
+
+        const reservas = await service.getByJogadorId(jogadorId, page, limit, filters);
         return res.status(200).json(reservas);
     },
 
