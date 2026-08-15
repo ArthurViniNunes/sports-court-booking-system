@@ -20,7 +20,11 @@ const controller = {
 
     getByJogadorId: async (req, res, next) => {
         const { jogadorId } = req.params;
-        const reservas = await service.getByJogadorId(jogadorId);
+
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
+
+        const reservas = await service.getByJogadorId(jogadorId, page, limit);
         return res.status(200).json(reservas);
     },
 

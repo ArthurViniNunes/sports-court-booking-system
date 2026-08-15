@@ -112,20 +112,47 @@ const service = {
             return reserva;
         });
     },
-    getByJogadorId: async (jogadorId) => {
-        if (!jogadorId) throw new AppError('ID do jogador é obrigatório', 400);
 
-        const reservas = await prisma.reserva.findMany({
-            where: { jogadorId },
-            include: { jogador: true, quadra: true },
-            orderBy: [
-                { data: 'asc' },
-                { horarioInicio: 'asc' }
-            ]
-        });
+    getByJogadorId: async (jogadorId, page = 1, limit = 10) => {
+        if (!jogadorId) {
+            throw new AppError('ID do jogador é obrigatório', 400);
+        }
 
-        return reservas;
+        const skip = (page - 1) * limit;
+
+        const where = { jogadorId };
+
+        const [reservas, total] = await Promise.all([
+            prisma.reserva.findMany({
+                where,
+                include: {
+                    jogador: true,
+                    quadra: true
+                },
+                orderBy: [
+                    { data: 'asc' },
+                    { horarioInicio: 'asc' }
+                ],
+                skip,
+                take: limit
+            }),
+
+            prisma.reserva.count({
+                where
+            })
+        ]);
+
+        return {
+            data: reservas,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
     },
+
 
     update: async (id, reservaData) => {
         if (!id) throw new AppError('ID da reserva é obrigatório para atualizar', 400);

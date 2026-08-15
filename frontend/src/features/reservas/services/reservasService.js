@@ -5,8 +5,9 @@ export const reservasService = {
     const response = await api.post('/reservas', data);
     return response.data;
   },
-  getByJogador: async (jogadorId) => {
-    const response = await api.get(`/reservas/jogador/${jogadorId}`);
+  getByJogador: async (jogadorId, page = 1, limit = 10) => {
+    const response = await api.get(`/reservas/jogador/${jogadorId}?page=${page}&limit=${limit}`);
+
     return response.data;
   },
   getByQuadra: async (quadraId) => {
