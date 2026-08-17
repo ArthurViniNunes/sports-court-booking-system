@@ -71,14 +71,24 @@ const service = {
 
     getById: async (id) => {
         if (!id) throw new AppError('ID da reserva é obrigatório para buscar', 400);
-
         const reserva = await prisma.reserva.findUnique({
             where: { id },
-            include: { jogador: true, quadra: true }
+            include: {
+                quadra: true,
+                jogador: {
+                    select: {
+                        id: true,
+                        nome: true,
+                        email: true,
+                        telefone: true,
+                    }
+                }
+            }
         });
+        if (!reserva) {
+            throw new AppError('Reserva não encontrada', 404);
+        }
 
-        if (!reserva) throw new AppError('Reserva não encontrada', 404);
-        
         return reserva;
     },
     
