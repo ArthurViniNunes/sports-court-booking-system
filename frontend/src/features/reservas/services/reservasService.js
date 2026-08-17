@@ -23,6 +23,10 @@ export const reservasService = {
     const response = await api.get(`/reservas/quadra/${quadraId}`);
     return response.data;
   },
+  getById: async (id) => {
+    const response = await api.get(`/reservas/${id}`);
+    return response.data;
+  },
   update: async (id, data) => {
     const response = await api.put(`/reservas/${id}`, data);
     return response.data;

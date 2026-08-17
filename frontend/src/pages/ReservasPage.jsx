@@ -15,7 +15,13 @@ import {
   InputAdornment,
   Stack,
   MenuItem,
-  TablePagination
+  TablePagination,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Divider
 } from '@mui/material';
 import { Search, Edit, Delete, Add } from '@mui/icons-material';
 import { authService } from '../services/authService';
@@ -24,8 +30,18 @@ import { quadrasService } from '../features/quadras/services/quadrasService';
 import FormReservaDialog from '../features/reservas/components/FormReservaDIalog';
 
 export default function ReservasPage() {
+  //loading tabela
+  const [loading, setLoading] = useState(false); 
+
+
   const [reservas, setReservas] = useState([]);
   const [quadras, setQuadras] = useState([]);
+
+  //Detalhes modal
+
+  const [modalDetalhesOpen, setModalDetalhesOpen] = useState(false);
+  const [detalhesReserva, setDetalhesReserva] = useState(null);
+  const [loadingDetalhes, setLoadingDetalhes] = useState(false);
   
   // Estados de paginação
   const [page, setPage] = useState(0); 
@@ -38,6 +54,7 @@ export default function ReservasPage() {
   const [filtroModalidade, setFiltroModalidade] = useState('todas');
   const [filtroData, setFiltroData] = useState('');
   
+  //Edit modal
   const [openModal, setOpenModal] = useState(false);
   const [reservaEditando, setReservaEditando] = useState(null);
   
@@ -45,7 +62,7 @@ export default function ReservasPage() {
 
   const carregarDados = async () => {
     try {
-
+      setLoading(true); 
       const filtros = {
         quadraId: filtroQuadra === 'todas' ? '' : filtroQuadra,
         modalidade: filtroModalidade === 'todas' ? '' : filtroModalidade,
@@ -63,18 +80,19 @@ export default function ReservasPage() {
       setQuadras(quadrasData);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Efeito principal: escuta mudanças nos filtros e paginação
   useEffect(() => {
-    // Usamos um pequeno timeout (debounce) para não enviar requisição a cada tecla digitada na busca
+    // pequeno timeout (debounce) para não enviar requisição a cada tecla digitada na busca
     const delayDebounceFn = setTimeout(() => {
       carregarDados();
-    }, 400); // Aguarda 400ms após o usuário parar de digitar
+    }, 400);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [page, rowsPerPage, searchTerm, filtroQuadra, filtroModalidade, filtroData]); // Dependências: recarrega quando qualquer filtro ou paginação muda
+  }, [page, rowsPerPage, searchTerm, filtroQuadra, filtroModalidade, filtroData]);
 
   // Handlers de Mudança
   const handleChangePage = (event, newPage) => setPage(newPage);
@@ -86,7 +104,25 @@ export default function ReservasPage() {
 
   const handleFilterChange = (setter) => (e) => {
     setter(e.target.value);
-    setPage(0); // Volta pra página 1 sempre que um filtro é alterado
+    setPage(0); 
+  };
+
+  const handleAbrirDetalhes = async (reservaId) => {
+    setModalDetalhesOpen(true);
+    setLoadingDetalhes(true);
+    try {
+      const data = await reservasService.getById(reservaId);
+      setDetalhesReserva(data);
+    } catch (error) {
+      console.error("Erro ao carregar detalhes da reserva", error);
+    } finally {
+      setLoadingDetalhes(false);
+    }
+  };
+
+  const handleFecharDetalhes = () => {
+    setModalDetalhesOpen(false);
+    setDetalhesReserva(null);
   };
 
   const limparFiltros = () => {
@@ -97,7 +133,6 @@ export default function ReservasPage() {
     setPage(0);
   };
 
-  // Funções de Modal e Formatação mantidas iguais
   const handleOpenCreate = () => { setReservaEditando(null); setOpenModal(true); };
   const handleOpenEdit = (reserva) => { setReservaEditando(reserva); setOpenModal(true); };
   
@@ -186,7 +221,7 @@ export default function ReservasPage() {
             SelectProps={{
               displayEmpty: true,
               renderValue: (selected) => {
-                if (selected === 'todas') { // Atualizado
+                if (selected === 'todas') {
                   return 'Todas as quadras';
                 }
                 const quadra = quadras.find((q) => q.id === selected);
@@ -211,14 +246,14 @@ export default function ReservasPage() {
             SelectProps={{
               displayEmpty: true,
               renderValue: (selected) => {
-                if (selected === 'todas') { // Atualizado
+                if (selected === 'todas') { 
                   return 'Todas as modalidades';
                 }
                 return selected;
               }
             }}
           >
-            <MenuItem value="todas">Todas as modalidades</MenuItem> {/* Atualizado */}
+            <MenuItem value="todas">Todas as modalidades</MenuItem>
             {modalidades.map((m) => (
               <MenuItem key={m} value={m}>
                 {m}
@@ -272,10 +307,26 @@ export default function ReservasPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {reservas.length > 0 ? (
-                // Note que aqui agora iteramos diretamente o estado 'reservas', sem filtro local
+              {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 5 }}>
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+              ) : reservas.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                    Nenhuma reserva encontrada para os filtros aplicados.
+                  </TableCell>
+                </TableRow>
+              ) : (
                 reservas.map((reserva) => (
-                  <TableRow key={reserva.id}>
+                  <TableRow 
+                    key={reserva.id}
+                    hover 
+                    onClick={() => handleAbrirDetalhes(reserva.id)}
+                    sx={{ cursor: 'pointer' }}
+                  >
                     <TableCell>
                       <Typography variant="body1" sx={{ fontWeight: 600, color: 'primary.main' }}>
                         {reserva.quadra?.nome}
@@ -310,14 +361,6 @@ export default function ReservasPage() {
                     </TableCell>
                   </TableRow>
                 ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} align="center">
-                    <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>
-                      Nenhuma reserva encontrada.
-                    </Typography>
-                  </TableCell>
-                </TableRow>
               )}
             </TableBody>
           </Table>
@@ -342,6 +385,62 @@ export default function ReservasPage() {
         reservaEdicao={reservaEditando}
         quadras={quadras}
       />
+
+      <Dialog open={modalDetalhesOpen} onClose={handleFecharDetalhes} maxWidth="sm" fullWidth>
+        <DialogTitle>Detalhes da Reserva #{detalhesReserva?.id}</DialogTitle>
+        <DialogContent dividers>
+          {loadingDetalhes ? (
+             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                <CircularProgress />
+             </Box>
+          ) : detalhesReserva ? (
+            <Stack spacing={2}>
+              <Box>
+                <Typography variant="caption" color="text.secondary">Data e Hora</Typography>
+                <Typography variant="body1">
+                  {new Date(detalhesReserva.data).toLocaleDateString()} às {detalhesReserva.horario}
+                </Typography>
+              </Box>
+              
+              <Divider />
+
+              <Box>
+                <Typography variant="caption" color="text.secondary">Quadra</Typography>
+                <Typography variant="body1">{detalhesReserva.quadra?.nome}</Typography>
+              </Box>
+
+              <Box>
+                <Typography variant="caption" color="text.secondary">Modalidade</Typography>
+                <Typography variant="body1">{detalhesReserva.modalidade}</Typography>
+              </Box>
+
+              <Divider />
+              
+              <Box>
+                <Typography variant="caption" color="text.secondary">Responsável (Jogador)</Typography>
+                <Typography variant="body1">{detalhesReserva.jogador?.nome}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {detalhesReserva.jogador?.email} | {detalhesReserva.jogador?.telefone}
+                </Typography>
+              </Box>
+
+              <Box>
+                <Typography variant="caption" color="text.secondary">Status</Typography>
+                <Typography variant="body1" sx={{ textTransform: 'capitalize' }}>
+                  {detalhesReserva.status}
+                </Typography>
+              </Box>
+            </Stack>
+          ) : (
+             <Typography>Não foi possível carregar os detalhes.</Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleFecharDetalhes}>Fechar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
+
+    
   );
 }
