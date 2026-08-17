@@ -5,13 +5,15 @@ export const reservasService = {
     const response = await api.post('/reservas', data);
     return response.data;
   },
-  getByJogador: async (jogadorId, page = 1, limit = 10, filters = {}) => {
-
+  getByJogador: async (jogadorId, page = 1, limit = 5, filters = {}) => {
+    console.log(limit);
+    
     const params = new URLSearchParams({ page, limit });
     
     if (filters.quadraId) params.append('quadraId', filters.quadraId);
     if (filters.modalidade) params.append('modalidade', filters.modalidade);
     if (filters.searchTerm) params.append('search', filters.searchTerm);
+    if (filters.data) params.append('data', filters.data);
 
     const response = await api.get(`/reservas/jogador/${jogadorId}?${params.toString()}`);
 

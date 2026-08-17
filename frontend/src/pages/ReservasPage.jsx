@@ -29,13 +29,14 @@ export default function ReservasPage() {
   
   // Estados de paginação
   const [page, setPage] = useState(0); 
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [totalReservas, setTotalReservas] = useState(0);
 
   // Estados de filtros
   const [searchTerm, setSearchTerm] = useState('');
-  const [filtroQuadra, setFiltroQuadra] = useState('');
-  const [filtroModalidade, setFiltroModalidade] = useState('');
+  const [filtroQuadra, setFiltroQuadra] = useState('todas');
+  const [filtroModalidade, setFiltroModalidade] = useState('todas');
+  const [filtroData, setFiltroData] = useState('');
   
   const [openModal, setOpenModal] = useState(false);
   const [reservaEditando, setReservaEditando] = useState(null);
@@ -44,9 +45,11 @@ export default function ReservasPage() {
 
   const carregarDados = async () => {
     try {
+
       const filtros = {
-        quadraId: filtroQuadra,
-        modalidade: filtroModalidade,
+        quadraId: filtroQuadra === 'todas' ? '' : filtroQuadra,
+        modalidade: filtroModalidade === 'todas' ? '' : filtroModalidade,
+        data: filtroData,
         searchTerm: searchTerm
       };
 
@@ -71,7 +74,7 @@ export default function ReservasPage() {
     }, 400); // Aguarda 400ms após o usuário parar de digitar
 
     return () => clearTimeout(delayDebounceFn);
-  }, [page, rowsPerPage, searchTerm, filtroQuadra, filtroModalidade]);
+  }, [page, rowsPerPage, searchTerm, filtroQuadra, filtroModalidade, filtroData]); // Dependências: recarrega quando qualquer filtro ou paginação muda
 
   // Handlers de Mudança
   const handleChangePage = (event, newPage) => setPage(newPage);
@@ -88,8 +91,9 @@ export default function ReservasPage() {
 
   const limparFiltros = () => {
     setSearchTerm('');
-    setFiltroQuadra('');
-    setFiltroModalidade('');
+    setFiltroQuadra('todas');
+    setFiltroModalidade('todas');
+    setFiltroData('');
     setPage(0);
   };
 
@@ -179,9 +183,18 @@ export default function ReservasPage() {
             value={filtroQuadra}
             onChange={handleFilterChange(setFiltroQuadra)}
             sx={{ minWidth: { xs: '100%', md: 200 } }}
-            SelectProps={{ displayEmpty: true }} // <-- Aqui resolvemos o select em branco
+            SelectProps={{
+              displayEmpty: true,
+              renderValue: (selected) => {
+                if (selected === 'todas') { // Atualizado
+                  return 'Todas as quadras';
+                }
+                const quadra = quadras.find((q) => q.id === selected);
+                return quadra?.nome || '';
+              }
+            }}
           >
-            <MenuItem value="">Todas as quadras</MenuItem>
+            <MenuItem value="todas">Todas as quadras</MenuItem>
             {quadras.map((q) => (
               <MenuItem key={q.id} value={q.id}>
                 {q.nome}
@@ -195,15 +208,33 @@ export default function ReservasPage() {
             value={filtroModalidade}
             onChange={handleFilterChange(setFiltroModalidade)}
             sx={{ minWidth: { xs: '100%', md: 200 } }}
-            SelectProps={{ displayEmpty: true }} // <-- Aqui também
+            SelectProps={{
+              displayEmpty: true,
+              renderValue: (selected) => {
+                if (selected === 'todas') { // Atualizado
+                  return 'Todas as modalidades';
+                }
+                return selected;
+              }
+            }}
           >
-            <MenuItem value="">Todas as modalidades</MenuItem>
+            <MenuItem value="todas">Todas as modalidades</MenuItem> {/* Atualizado */}
             {modalidades.map((m) => (
               <MenuItem key={m} value={m}>
                 {m}
               </MenuItem>
             ))}
           </TextField>
+
+
+          <TextField
+            type="date"
+            size="small"
+            value={filtroData}
+            onChange={handleFilterChange(setFiltroData)}
+            sx={{ minWidth: { xs: '100%', md: 160 } }}
+            InputLabelProps={{ shrink: true }}
+          />
 
           <TextField
             variant="outlined"

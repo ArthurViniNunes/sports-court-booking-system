@@ -6,7 +6,6 @@ const controller = {
         const reserva = await service.create({ jogadorId, quadraId, data, horarioInicio, horarioFim });
         return res.status(201).json(reserva);
     },
-
     getAll: async (req, res, next) => {
         const reservas = await service.getAll();
         return res.status(200).json(reservas);
@@ -17,15 +16,14 @@ const controller = {
         const reserva = await service.getById(id);
         return res.status(200).json(reserva);
     },
-
     getByJogadorId: async (req, res, next) => {
         const { jogadorId } = req.params;
 
         const page = parseInt(req.query.page, 10) || 1;
-        const limit = parseInt(req.query.limit, 10) || 10;
+        const limit = parseInt(req.query.limit, 10) || 5;
 
-        const { quadraId, modalidade, search } = req.query;
-        const filters = { quadraId, modalidade, search };
+        const { quadraId, modalidade, search, data } = req.query;
+        const filters = { quadraId, modalidade, search, data };
 
         const reservas = await service.getByJogadorId(jogadorId, page, limit, filters);
         return res.status(200).json(reservas);

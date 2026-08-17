@@ -118,8 +118,6 @@ const service = {
             throw new AppError('ID do jogador é obrigatório', 400);
         }
 
-        
-
         const skip = (page - 1) * limit;
 
         const where = { jogadorId };
@@ -128,13 +126,16 @@ const service = {
             where.quadraId = filters.quadraId;
         }
 
+        if (filters.data) {
+            where.data = new Date(`${filters.data}T00:00:00`);
+        }
+
         if (filters.modalidade || filters.search) {
             where.quadra = {};
             if (filters.modalidade) {
                 where.quadra.modalidade = filters.modalidade;
             }
             if (filters.search) {
-                // Busca textual por Nome ou Modalidade (insensível a maiúsculas/minúsculas)
                 where.quadra.OR = [
                     { nome: { contains: filters.search, mode: 'insensitive' } },
                     { modalidade: { contains: filters.search, mode: 'insensitive' } }
