@@ -147,7 +147,14 @@ const service = {
             prisma.reserva.findMany({
                 where,
                 include: {
-                    jogador: true,
+                    jogador: {
+                        select: {
+                            id: true,
+                            nome: true,
+                            email: true,
+                            telefone: true,
+                        }
+                    },
                     quadra: true
                 },
                 orderBy: [
