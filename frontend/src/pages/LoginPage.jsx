@@ -149,7 +149,7 @@ function LoginPage() {
                 {loading ? (isLogin ? 'Entrando...' : 'Cadastrando...') : (isLogin ? 'Entrar' : 'Cadastrar')}
               </Button>
 
-              <Box textAlign="center" mt={2}>
+              <Box sx={{ textAlign: 'center', mt: 2 }}>
                 <Typography variant="body2" color="text.secondary">
                   {isLogin ? 'Ainda não é jogador? ' : 'Já possui conta? '}
                   <Link 

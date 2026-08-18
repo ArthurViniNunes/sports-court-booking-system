@@ -29,7 +29,7 @@ function Home() {
         <Typography variant="h2" color="primary" gutterBottom>
           Sua quadra, sem conflito de horário.
         </Typography>
-        <Typography variant="body1" color="text.secondary" paragraph>
+        <Typography variant="body1" color="text.secondary">
           O sistema de agendamento comunitário pensado para times, escolinhas e vizinhos.
         </Typography>
       </Container>

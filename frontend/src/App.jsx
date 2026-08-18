@@ -3,7 +3,6 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from './theme/theme';
 import { authService } from './services/authService';
-
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
 import BaseLayout from './components/BaseLayout';
@@ -13,10 +12,14 @@ import ReservasPage from './pages/ReservasPage';
 import PerfilPage from './pages/PerfilPage';
 import AgendaPage from './pages/AgendaPage';
 
-// Componente para proteger rotas que exigem login
 function PrivateRoute({ children }) {
   const currentUser = authService.getCurrentUser();
   return currentUser ? children : <Navigate to="/login" replace />;
+}
+
+function PublicRoute({ children }) {
+  const currentUser = authService.getCurrentUser();
+  return currentUser ? <Navigate to="/dashboard" replace /> : children;
 }
 
 function App() {
@@ -25,18 +28,18 @@ function App() {
       <CssBaseline />
       <BrowserRouter>
         <Routes>
-          {/* Landing Page Pública */}
+          {/* Landing Page Publica */}
           <Route path="/" element={<Home />} />
           
-          {/* Tela de Login/Registro */}
           <Route
             path="/login"
             element={
-              authService.getCurrentUser()
-                ? <Navigate to="/dashboard" replace />
-                : <LoginPage />
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
             }
-          />          
+          />
+          
           {/* Rotas Protegidas e Envolvidas pelo Layout */}
           <Route 
             path="/" 
