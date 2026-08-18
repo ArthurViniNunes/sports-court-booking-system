@@ -6,13 +6,15 @@ import {
   DialogActions,
   Button,
   TextField,
-  MenuItem,
   Stack,
-  Typography
+  Typography,
+  CircularProgress,
+  Autocomplete
 } from '@mui/material';
 
-export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao, initialData, quadras }) {
-// export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao, quadras }) {
+import { quadrasService } from '../../quadras/services/quadrasService';
+
+export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao, initialData, fixedQuadra }) {
   const [formData, setFormData] = useState({
     quadraId: '',
     data: '',
@@ -20,13 +22,29 @@ export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao
     horarioFim: ''
   });
 
+  const [quadrasList, setQuadrasList] = useState([]);
+  const [loadingQuadras, setLoadingQuadras] = useState(false);
+
   useEffect(() => {
+    if (open) {
+      if (reservaEdicao && reservaEdicao.quadra) {
+        setQuadrasList([reservaEdicao.quadra]);
+      } else if (initialData && initialData.quadraId && initialData.quadraNome) {
+        setQuadrasList([{
+          id: initialData.quadraId,
+          nome: initialData.quadraNome,
+          modalidade: initialData.quadraModalidade || ''
+        }]);
+      } else {
+        setQuadrasList([]);
+      }
+    }
+
     if (reservaEdicao) {
-      // Ajuste para evitar fuso horário puxando a data um dia para trás
       const date = new Date(reservaEdicao.data);
       const dataFormatada = new Date(date.getTime() + date.getTimezoneOffset() * 60000)
         .toISOString().split('T')[0];
-      
+        
       const inicio = new Date(reservaEdicao.horarioInicio);
       const horarioInicioFormatado = inicio.toTimeString().substring(0, 5);
 
@@ -40,7 +58,6 @@ export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao
         horarioFim: horarioFimFormatado
       });
     } else if (initialData) {
-      // Novo: Configura dados baseados na Agenda
       setFormData({
         quadraId: initialData.quadraId || '',
         data: initialData.data || '',
@@ -64,14 +81,39 @@ export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao
     });
   };
 
+  const handleOpenQuadras = async () => {
+    console.log(fixedQuadra);
+    
+    // Se a quadra for fixa (ex: vindo da Agenda), não precisamos buscar
+    if (fixedQuadra) return;
+    
+    try {
+      setLoadingQuadras(true);
+      const data = await quadrasService.getAll();
+      console.log(data);
+      
+      setQuadrasList(data);
+    } catch (error) {
+      console.error('Erro ao buscar quadras:', error);
+    } finally {
+      setLoadingQuadras(false);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave(formData);
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: '16px', p: 1 } }}>
-      <DialogTitle>
+    <Dialog
+       open={open}
+       onClose={onClose}
+       maxWidth="sm"
+       fullWidth
+       sx={{ '& .MuiDialog-paper': { borderRadius: '16px', p: 1 } }}
+    >
+      <DialogTitle component="div">
         <Typography variant="h3" color="primary">
           {reservaEdicao ? 'Editar reserva' : 'Nova reserva'}
         </Typography>
@@ -82,22 +124,37 @@ export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField
-              select
-              label="Quadra"
-              name="quadraId"
-              value={formData.quadraId}
-              onChange={handleChange}
-              fullWidth
-              required
-            >
-              <MenuItem value="" disabled>Selecione uma quadra</MenuItem>
-              {quadras.map((q) => (
-                <MenuItem key={q.id} value={q.id}>
-                  {q.nome} - {q.modalidade}
-                </MenuItem>
-              ))}
-            </TextField>
+            <Autocomplete
+              openOnFocus
+              options={quadrasList}
+              getOptionLabel={(option) => option ? `${option.nome} - ${option.modalidade}` : ''}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              value={quadrasList.find(q => q.id === formData.quadraId) || null}
+              onChange={(event, newValue) => {
+                handleChange({ target: { name: 'quadraId', value: newValue ? newValue.id : '' } });
+              }}
+              onOpen={handleOpenQuadras}
+              disabled={fixedQuadra}
+              loading={loadingQuadras}
+              loadingText="Carregando quadras..."
+              noOptionsText="Nenhuma quadra encontrada"
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Quadra"
+                  required
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {loadingQuadras ? <CircularProgress color="inherit" size={20} /> : null}
+                        {/* {params.InputProps.endAdornment} */}
+                      </>
+                    ),
+                  }}
+                />
+              )}
+            />
             <TextField
               type="date"
               label="Data"

@@ -81,12 +81,14 @@ export default function AgendaPage() {
     }
   };
 
-  // Disparado ao clicar ou arrastar (selecionar) espaços em branco no calendário
   const handleSlotClick = (slotInfo) => {
     const start = format(slotInfo.start, 'HH:mm');
     const end = format(slotInfo.end, 'HH:mm');
+    const quadraSelecionadaObj = quadras.find(q => q.id === selectedQuadra);
     setInitialData({
         quadraId: selectedQuadra,
+        quadraNome: quadraSelecionadaObj?.nome,
+        quadraModalidade: quadraSelecionadaObj?.modalidade,
         data: selectedDate,
         horarioInicio: start,
         horarioFim: end
@@ -243,7 +245,7 @@ export default function AgendaPage() {
         onClose={() => setOpenModal(false)}
         onSave={handleSave}
         initialData={initialData}
-        quadras={quadras}
+        fixedQuadra={true}
       />
     </Box>
   );

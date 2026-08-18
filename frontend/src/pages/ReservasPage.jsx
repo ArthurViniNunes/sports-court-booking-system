@@ -388,7 +388,6 @@ export default function ReservasPage() {
         onClose={() => setOpenModal(false)}
         onSave={handleSave}
         reservaEdicao={reservaEditando}
-        quadras={quadras}
       />
 
       <Dialog open={modalDetalhesOpen} onClose={handleFecharDetalhes} maxWidth="sm" fullWidth>
