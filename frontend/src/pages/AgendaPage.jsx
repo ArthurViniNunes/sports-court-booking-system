@@ -130,7 +130,7 @@ export default function AgendaPage() {
           label="Data"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
         />
       </Stack>
 

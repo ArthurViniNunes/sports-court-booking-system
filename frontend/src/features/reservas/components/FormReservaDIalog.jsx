@@ -143,7 +143,7 @@ export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao
                   {...params}
                   label="Quadra"
                   required
-                  InputProps={{
+                  InputProps={{ 
                     ...params.InputProps,
                     endAdornment: (
                       <>

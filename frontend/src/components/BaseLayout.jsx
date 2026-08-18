@@ -66,7 +66,14 @@ export default function BaseLayout() {
                   </ListItemIcon>
                   <ListItemText
                     primary={item.text}
-                    primaryTypographyProps={{ fontFamily: '"Manrope", sans-serif', fontWeight: isActive ? 700 : 500 }}
+                    slotProps={{
+                      primary: {
+                        sx: {
+                          fontFamily: '"Manrope", sans-serif',
+                          fontWeight: isActive ? 700 : 500,
+                        },
+                      },
+                    }}
                   />
                 </ListItemButton>
               </ListItem>
@@ -89,8 +96,7 @@ export default function BaseLayout() {
               <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>
                 <Logout />
               </ListItemIcon>
-              <ListItemText primary="Sair" primaryTypographyProps={{ fontFamily: '"Manrope", sans-serif', fontWeight: 500 }} />
-            </ListItemButton>
+              <ListItemText primary="Sair" slotProps={{ primary: { sx: { fontFamily: '"Manrope", sans-serif', fontWeight: 500 } } }} />            </ListItemButton>
           </ListItem>
         </List>
       </Drawer>

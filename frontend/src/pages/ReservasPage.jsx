@@ -197,8 +197,8 @@ export default function ReservasPage() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Box>
+      <Stack direction="row" sx={{ mb: 4, justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box>
           <Typography variant="h2" color="primary" gutterBottom>
             Minhas Reservas
           </Typography>
@@ -216,21 +216,23 @@ export default function ReservasPage() {
           Lista de reservas
         </Typography>
 
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{mb: 3,alignItems: 'center'}}>
           <TextField
             select
             size="small"
             value={filtroQuadra}
             onChange={handleFilterChange(setFiltroQuadra)}
             sx={{ minWidth: { xs: '100%', md: 200 } }}
-            SelectProps={{
-              displayEmpty: true,
-              renderValue: (selected) => {
-                if (selected === 'todas') {
-                  return 'Todas as quadras';
+            slotProps={{ 
+              select: { 
+                displayEmpty: true,
+                renderValue: (selected) => {
+                  if (selected === 'todas') {
+                    return 'Todas as quadras';
+                  }
+                  const quadra = quadras.find((q) => q.id === selected);
+                  return quadra?.nome || '';
                 }
-                const quadra = quadras.find((q) => q.id === selected);
-                return quadra?.nome || '';
               }
             }}
           >
@@ -248,13 +250,15 @@ export default function ReservasPage() {
             value={filtroModalidade}
             onChange={handleFilterChange(setFiltroModalidade)}
             sx={{ minWidth: { xs: '100%', md: 200 } }}
-            SelectProps={{
-              displayEmpty: true,
-              renderValue: (selected) => {
-                if (selected === 'todas') { 
-                  return 'Todas as modalidades';
+            slotProps={{ 
+              select: {
+                displayEmpty: true,
+                renderValue: (selected) => {
+                  if (selected === 'todas') { 
+                    return 'Todas as modalidades';
+                  }
+                  return selected;
                 }
-                return selected;
               }
             }}
           >
@@ -273,7 +277,11 @@ export default function ReservasPage() {
             value={filtroData}
             onChange={handleFilterChange(setFiltroData)}
             sx={{ minWidth: { xs: '100%', md: 160 } }}
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ 
+              inputLabel:{ 
+                shrink: true 
+              }
+            }}
           />
 
           <TextField
@@ -283,12 +291,14 @@ export default function ReservasPage() {
             onChange={handleFilterChange(setSearchTerm)}
             size="small"
             sx={{ minWidth: { xs: '100%', md: 250 }, flexGrow: 1 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
+            slotProps={{ 
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search />
+                  </InputAdornment>
+                ),
+              }
             }}
           />
           <Button 
@@ -377,6 +387,7 @@ export default function ReservasPage() {
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[5, 10, 25, 50]}
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage="Linhas por página:"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}

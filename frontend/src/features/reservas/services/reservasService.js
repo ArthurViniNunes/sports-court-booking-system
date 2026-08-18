@@ -6,8 +6,6 @@ export const reservasService = {
     return response.data;
   },
   getByJogador: async (jogadorId, page = 1, limit = 5, filters = {}) => {
-    console.log(limit);
-    
     const params = new URLSearchParams({ page, limit });
     
     if (filters.quadraId) params.append('quadraId', filters.quadraId);
