@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post('/', requireAuth, c.create);
 router.get('/', requireAuth, requireAdmin, c.getAll);
-router.get('/quadra/:quadraId',requireAuth, requireAdmin, c.getByQuadra);
+router.get('/quadra/:quadraId',requireAuth, c.getByQuadra);
 router.get('/jogador/:jogadorId', requireAuth,  c.getByJogadorId);
 router.get('/:id', requireAuth, c.getById);
 router.put('/:id', requireAuth, c.update);

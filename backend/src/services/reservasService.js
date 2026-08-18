@@ -71,20 +71,29 @@ const service = {
 
     getById: async (id) => {
         if (!id) throw new AppError('ID da reserva é obrigatório para buscar', 400);
-
         const reserva = await prisma.reserva.findUnique({
             where: { id },
-            include: { jogador: true, quadra: true }
+            include: {
+                quadra: true,
+                jogador: {
+                    select: {
+                        id: true,
+                        nome: true,
+                        email: true,
+                        telefone: true,
+                    }
+                }
+            }
         });
+        if (!reserva) {
+            throw new AppError('Reserva não encontrada', 404);
+        }
 
-        if (!reserva) throw new AppError('Reserva não encontrada', 404);
-        
         return reserva;
     },
-
-    getByQuadra: async (quadraId, dataStr) => {
+    
+    getByQuadra: async (quadraId, dataStr, usuarioLogado) => {
         if (!quadraId) throw new AppError('ID da quadra é obrigatório', 400);
-
         const whereClause = { quadraId };
         
         if (dataStr) {
@@ -97,23 +106,91 @@ const service = {
             orderBy: { horarioInicio: 'asc' }
         });
 
-        return reservas;
-    },
-
-    getByJogadorId: async (jogadorId) => {
-        if (!jogadorId) throw new AppError('ID do jogador é obrigatório', 400);
-
-        const reservas = await prisma.reserva.findMany({
-            where: { jogadorId },
-            include: { jogador: true, quadra: true },
-            orderBy: [
-                { data: 'asc' },
-                { horarioInicio: 'asc' }
-            ]
+        // Mascara os dados se o usuário não for dono da reserva e não for admin
+        return reservas.map(reserva => {
+            if (!usuarioLogado.isAdmin && reserva.jogadorId !== usuarioLogado.id) {
+                return {
+                    ...reserva,
+                    jogador: {
+                        id: 'hidden',
+                        nome: 'Ocupado',
+                        email: '',
+                        telefone: ''
+                    }
+                };
+            }
+            return reserva;
         });
-
-        return reservas;
     },
+
+    getByJogadorId: async (jogadorId, page = 1, limit = 10, filters = {}) => {
+        if (!jogadorId) {
+            throw new AppError('ID do jogador é obrigatório', 400);
+        }
+
+        const skip = (page - 1) * limit;
+
+        const where = { jogadorId };
+
+        if (filters.quadraId) {
+            where.quadraId = filters.quadraId;
+        }
+
+        if (filters.data) {
+            where.data = new Date(`${filters.data}T00:00:00`);
+        }
+
+        if (filters.modalidade || filters.search) {
+            where.quadra = {};
+            if (filters.modalidade) {
+                where.quadra.modalidade = filters.modalidade;
+            }
+            if (filters.search) {
+                where.quadra.OR = [
+                    { nome: { contains: filters.search, mode: 'insensitive' } },
+                    { modalidade: { contains: filters.search, mode: 'insensitive' } }
+                ];
+            }
+        }
+
+        const [reservas, total] = await Promise.all([
+            prisma.reserva.findMany({
+                where,
+                include: {
+                    jogador: {
+                        select: {
+                            id: true,
+                            nome: true,
+                            email: true,
+                            telefone: true,
+                        }
+                    },
+                    quadra: true
+                },
+                orderBy: [
+                    { data: 'asc' },
+                    { horarioInicio: 'asc' }
+                ],
+                skip,
+                take: limit
+            }),
+
+            prisma.reserva.count({
+                where
+            })
+        ]);
+
+        return {
+            data: reservas,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
+    },
+
 
     update: async (id, reservaData) => {
         if (!id) throw new AppError('ID da reserva é obrigatório para atualizar', 400);
