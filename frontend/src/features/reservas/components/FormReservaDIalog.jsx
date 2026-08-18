@@ -82,16 +82,12 @@ export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao
   };
 
   const handleOpenQuadras = async () => {
-    console.log(fixedQuadra);
-    
     // Se a quadra for fixa (ex: vindo da Agenda), não precisamos buscar
     if (fixedQuadra) return;
     
     try {
       setLoadingQuadras(true);
       const data = await quadrasService.getAll();
-      console.log(data);
-      
       setQuadrasList(data);
     } catch (error) {
       console.error('Erro ao buscar quadras:', error);
