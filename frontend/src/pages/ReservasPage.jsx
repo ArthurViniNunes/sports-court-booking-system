@@ -134,9 +134,14 @@ export default function ReservasPage() {
   };
 
   const handleOpenCreate = () => { setReservaEditando(null); setOpenModal(true); };
-  const handleOpenEdit = (reserva) => { setReservaEditando(reserva); setOpenModal(true); };
+  const handleOpenEdit = (e, reserva) => {
+     e.stopPropagation(); 
+    setReservaEditando(reserva); 
+    setOpenModal(true);
+    };
   
-  const handleDelete = async (id) => {
+  const handleDelete = async (e, id) => {
+    e.stopPropagation();
     if (window.confirm('Tem certeza que deseja excluir esta reserva?')) {
       try {
         await reservasService.delete(id);
@@ -339,21 +344,21 @@ export default function ReservasPage() {
                     <TableCell>{formatarHorario(reserva.horarioInicio, reserva.horarioFim)}</TableCell>
                     <TableCell align="center">
                       <Button
-                        variant="outlined"
+                        variant="text"
                         size="small"
                         color="secondary"
                         startIcon={<Edit />}
-                        onClick={() => handleOpenEdit(reserva)}
+                        onClick={(e) => handleOpenEdit(e, reserva)}
                         sx={{ mr: 1, borderRadius: '999px' }}
                       >
                         Editar
                       </Button>
                       <Button
-                        variant="outlined"
+                        variant="text"
                         size="small"
                         color="error"
                         startIcon={<Delete />}
-                        onClick={() => handleDelete(reserva.id)}
+                        onClick={(e) => handleDelete(e,reserva.id)}
                         sx={{ borderRadius: '999px' }}
                       >
                         Excluir
@@ -387,7 +392,7 @@ export default function ReservasPage() {
       />
 
       <Dialog open={modalDetalhesOpen} onClose={handleFecharDetalhes} maxWidth="sm" fullWidth>
-        <DialogTitle>Detalhes da Reserva #{detalhesReserva?.id}</DialogTitle>
+        <DialogTitle>Detalhes da Reserva</DialogTitle>
         <DialogContent dividers>
           {loadingDetalhes ? (
              <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
@@ -396,9 +401,18 @@ export default function ReservasPage() {
           ) : detalhesReserva ? (
             <Stack spacing={2}>
               <Box>
-                <Typography variant="caption" color="text.secondary">Data e Hora</Typography>
+                <Typography variant="caption" color="text.secondary">Reserva criada em</Typography>
                 <Typography variant="body1">
-                  {new Date(detalhesReserva.data).toLocaleDateString()} às {detalhesReserva.horario}
+                  {new Date(detalhesReserva.createdAt).toLocaleDateString('pt-BR')} às {new Date(detalhesReserva.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </Typography>
+              </Box>
+              
+              <Divider/>
+              
+              <Box>
+                <Typography variant="caption" color="text.secondary">Data e Horário Marcados</Typography>
+                <Typography variant="body1">
+                  {formatarData(detalhesReserva.data)} - {formatarHorario(detalhesReserva.horarioInicio, detalhesReserva.horarioFim)}
                 </Typography>
               </Box>
               
@@ -411,25 +425,20 @@ export default function ReservasPage() {
 
               <Box>
                 <Typography variant="caption" color="text.secondary">Modalidade</Typography>
-                <Typography variant="body1">{detalhesReserva.modalidade}</Typography>
+                <Typography variant="body1">{detalhesReserva.quadra?.modalidade}</Typography>
               </Box>
 
               <Divider />
               
               <Box>
-                <Typography variant="caption" color="text.secondary">Responsável (Jogador)</Typography>
-                <Typography variant="body1">{detalhesReserva.jogador?.nome}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {detalhesReserva.jogador?.email} | {detalhesReserva.jogador?.telefone}
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                  Responsável (Jogador)
                 </Typography>
+                <Typography variant="body2"><strong>Nome:</strong> {detalhesReserva.jogador?.nome}</Typography>
+                <Typography variant="body2"><strong>Email:</strong> {detalhesReserva.jogador?.email}</Typography>
+                <Typography variant="body2"><strong>Telefone:</strong> {detalhesReserva.jogador?.telefone}</Typography>
               </Box>
 
-              <Box>
-                <Typography variant="caption" color="text.secondary">Status</Typography>
-                <Typography variant="body1" sx={{ textTransform: 'capitalize' }}>
-                  {detalhesReserva.status}
-                </Typography>
-              </Box>
             </Stack>
           ) : (
              <Typography>Não foi possível carregar os detalhes.</Typography>
