@@ -4,7 +4,7 @@ import AppError from '../utils/AppError.js';
 const service = {
     create: async (reservaData) => {
         const { jogadorId, quadraId, data, horarioInicio, horarioFim } = reservaData;
-        
+
         if (!jogadorId || !quadraId || !data || !horarioInicio || !horarioFim) {
             throw new AppError('Jogador, quadra, data, horário de início e término são obrigatórios', 400);
         }
@@ -91,13 +91,21 @@ const service = {
 
         return reserva;
     },
-    
+
     getByQuadra: async (quadraId, dataStr, usuarioLogado) => {
         if (!quadraId) throw new AppError('ID da quadra é obrigatório', 400);
         const whereClause = { quadraId };
-        
+
         if (dataStr) {
-            whereClause.data = new Date(dataStr);
+            const inicioDia = new Date(`${dataStr}T00:00:00`);
+            const fimDia = new Date(`${dataStr}T00:00:00`);
+
+            fimDia.setDate(fimDia.getDate() + 1);
+
+            whereClause.data = {
+                gte: inicioDia,
+                lt: fimDia,
+            };
         }
 
         const reservas = await prisma.reserva.findMany({
