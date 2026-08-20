@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.get('/', requireAuth, requireAdmin, c.getAll);
 router.get('/:id', requireAuth, c.getById);
+router.post('/', requireAuth, requireAdmin, c.create);
 router.put('/:id', requireAuth, c.update);
 router.delete('/:id', requireAuth, c.delete);
 

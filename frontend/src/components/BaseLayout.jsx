@@ -19,6 +19,7 @@ import {
   Home, 
   EventAvailable, 
   SportsTennis, 
+  People,
   Logout, 
   CalendarMonth, 
   Menu as MenuIcon 
@@ -40,6 +41,7 @@ export default function BaseLayout() {
     { text: 'Início', path: '/dashboard', icon: <Home /> },
     { text: 'Reservas', path: '/reservas', icon: <EventAvailable /> },
     { text: 'Quadras', path: '/quadras', icon: <SportsTennis /> },
+    { text: 'Jogadores', path: '/jogadores', icon: <People /> },
     { text: 'Agenda', path: '/agenda', icon: <CalendarMonth /> },
   ];
 

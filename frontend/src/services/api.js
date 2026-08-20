@@ -41,4 +41,10 @@ api.interceptors.response.use(
   }
 );
 
+// Jogadores 
+export const getJogadores = () => api.get('/jogadores');
+export const createJogador = (data) => api.post('/jogadores', data);
+export const updateJogador = (id, data) => api.put(`/jogadores/${id}`, data);
+export const deleteJogador = (id) => api.delete(`/jogadores/${id}`);
+
 export default api;
