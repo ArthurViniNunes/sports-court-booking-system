@@ -1,1 +1,0 @@
-Nesse diretorio ficariam componentes especificos para quadras, ex: CardQuadra.jsx, StatusQuadra.jsx
