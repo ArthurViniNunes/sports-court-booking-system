@@ -1,4 +1,8 @@
-import { useState, useEffect } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { Typography, Box, Paper, TextField, MenuItem, Stack } from '@mui/material';
 import { quadrasService } from '../features/quadras/services/quadrasService';
 import { reservasService } from '../features/reservas/services/reservasService';
@@ -44,19 +48,34 @@ export default function AgendaPage() {
     fetchQuadras();
   }, []);
 
-  const fetchReservas = async () => {
-    if (!selectedQuadra) return;
+  const fetchReservas = useCallback(async () => {
+    if (!selectedQuadra) {
+      setReservas([]);
+      return;
+    }
+
     try {
-      const data = await reservasService.getByQuadra(selectedQuadra);
+      const data = await reservasService.getByQuadra(
+        selectedQuadra,
+        selectedDate,
+      );
+
       setReservas(data);
     } catch (error) {
       console.error('Erro ao buscar reservas:', error);
+      setReservas([]);
     }
-  };
+  }, [selectedDate, selectedQuadra]);
 
   useEffect(() => {
-    fetchReservas();
-  }, [selectedQuadra]);
+    const timeoutId = setTimeout(() => {
+      fetchReservas();
+    }, 0);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [fetchReservas]);
 
   const handleSave = async (formData) => {
     try {

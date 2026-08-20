@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -25,54 +25,74 @@ export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao
   const [quadrasList, setQuadrasList] = useState([]);
   const [loadingQuadras, setLoadingQuadras] = useState(false);
 
-  useEffect(() => {
-    if (open) {
-      if (reservaEdicao && reservaEdicao.quadra) {
-        setQuadrasList([reservaEdicao.quadra]);
-      } else if (initialData && initialData.quadraId && initialData.quadraNome) {
-        setQuadrasList([{
+  const prepareDialog = () => {
+    if (reservaEdicao?.quadra) {
+      setQuadrasList([reservaEdicao.quadra]);
+    } else if (
+      initialData?.quadraId &&
+      initialData?.quadraNome
+    ) {
+      setQuadrasList([
+        {
           id: initialData.quadraId,
           nome: initialData.quadraNome,
-          modalidade: initialData.quadraModalidade || ''
-        }]);
-      } else {
-        setQuadrasList([]);
-      }
+          modalidade: initialData.quadraModalidade || '',
+        },
+      ]);
+    } else {
+      setQuadrasList([]);
     }
 
     if (reservaEdicao) {
-      const date = new Date(reservaEdicao.data);
-      const dataFormatada = new Date(date.getTime() + date.getTimezoneOffset() * 60000)
-        .toISOString().split('T')[0];
-        
-      const inicio = new Date(reservaEdicao.horarioInicio);
-      const horarioInicioFormatado = inicio.toTimeString().substring(0, 5);
+      const reservationDate = new Date(reservaEdicao.data);
 
-      const fim = new Date(reservaEdicao.horarioFim);
-      const horarioFimFormatado = fim.toTimeString().substring(0, 5);
+      const formattedDate = new Date(
+        reservationDate.getTime() +
+          reservationDate.getTimezoneOffset() * 60000,
+      )
+        .toISOString()
+        .split('T')[0];
+
+      const startTime = new Date(
+        reservaEdicao.horarioInicio,
+      )
+        .toTimeString()
+        .substring(0, 5);
+
+      const endTime = new Date(
+        reservaEdicao.horarioFim,
+      )
+        .toTimeString()
+        .substring(0, 5);
 
       setFormData({
         quadraId: reservaEdicao.quadraId,
-        data: dataFormatada,
-        horarioInicio: horarioInicioFormatado,
-        horarioFim: horarioFimFormatado
+        data: formattedDate,
+        horarioInicio: startTime,
+        horarioFim: endTime,
       });
-    } else if (initialData) {
+
+      return;
+    }
+
+    if (initialData) {
       setFormData({
         quadraId: initialData.quadraId || '',
         data: initialData.data || '',
         horarioInicio: initialData.horarioInicio || '',
-        horarioFim: initialData.horarioFim || ''
+        horarioFim: initialData.horarioFim || '',
       });
-    } else {
-      setFormData({
-        quadraId: '',
-        data: '',
-        horarioInicio: '',
-        horarioFim: ''
-      });
+
+      return;
     }
-  }, [reservaEdicao, initialData, open]);
+
+    setFormData({
+      quadraId: '',
+      data: '',
+      horarioInicio: '',
+      horarioFim: '',
+    });
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -103,11 +123,21 @@ export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao
 
   return (
     <Dialog
-       open={open}
-       onClose={onClose}
-       maxWidth="sm"
-       fullWidth
-       sx={{ '& .MuiDialog-paper': { borderRadius: '16px', p: 1 } }}
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      slotProps={{
+        transition: {
+          onEnter: prepareDialog,
+        },
+      }}
+      sx={{
+        '& .MuiDialog-paper': {
+          borderRadius: '16px',
+          p: 1,
+        },
+      }}
     >
       <DialogTitle component="div">
         <Typography variant="h3" color="primary">
@@ -159,28 +189,40 @@ export default function FormReservaDialog({ open, onClose, onSave, reservaEdicao
               onChange={handleChange}
               fullWidth
               required
-              InputLabelProps={{ shrink: true }}
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
             />
             <Stack direction="row" spacing={2}>
               <TextField
                 type="time"
-                label="Horário de Início"
+                label="Horário de início"
                 name="horarioInicio"
                 value={formData.horarioInicio}
                 onChange={handleChange}
                 fullWidth
                 required
-                InputLabelProps={{ shrink: true }}
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
               />
               <TextField
                 type="time"
-                label="Horário de Fim"
+                label="Horário de término"
                 name="horarioFim"
                 value={formData.horarioFim}
                 onChange={handleChange}
                 fullWidth
                 required
-                InputLabelProps={{ shrink: true }}
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
               />
             </Stack>
           </Stack>

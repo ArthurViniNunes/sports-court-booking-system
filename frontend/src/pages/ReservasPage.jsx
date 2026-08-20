@@ -1,5 +1,8 @@
-
-import { useState, useEffect } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import {
   Typography,
   Box,
@@ -59,40 +62,65 @@ export default function ReservasPage() {
   const [reservaEditando, setReservaEditando] = useState(null);
   
   const currentUser = authService.getCurrentUser();
+  const currentUserId = currentUser.id;
 
-  const carregarDados = async () => {
+  const carregarDados = useCallback(async () => {
     try {
-      setLoading(true); 
+      setLoading(true);
+
       const filtros = {
-        quadraId: filtroQuadra === 'todas' ? '' : filtroQuadra,
-        modalidade: filtroModalidade === 'todas' ? '' : filtroModalidade,
+        quadraId:
+          filtroQuadra === 'todas'
+            ? ''
+            : filtroQuadra,
+        modalidade:
+          filtroModalidade === 'todas'
+            ? ''
+            : filtroModalidade,
         data: filtroData,
-        searchTerm: searchTerm
+        searchTerm,
       };
 
-      const [reservasResponse, quadrasData] = await Promise.all([
-        reservasService.getByJogador(currentUser.id, page + 1, rowsPerPage, filtros),
-        quadrasService.getAll()
-      ]);
-      
+      const [reservasResponse, quadrasData] =
+        await Promise.all([
+          reservasService.getByJogador(
+            currentUserId,
+            page + 1,
+            rowsPerPage,
+            filtros,
+          ),
+          quadrasService.getAll(),
+        ]);
+
       setReservas(reservasResponse.data);
-      setTotalReservas(reservasResponse.pagination.total);
+      setTotalReservas(
+        reservasResponse.pagination.total,
+      );
       setQuadras(quadrasData);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    currentUserId,
+    filtroData,
+    filtroModalidade,
+    filtroQuadra,
+    page,
+    rowsPerPage,
+    searchTerm,
+  ]);
 
   useEffect(() => {
-    // pequeno timeout (debounce) para não enviar requisição a cada tecla digitada na busca
-    const delayDebounceFn = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       carregarDados();
     }, 400);
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [page, rowsPerPage, searchTerm, filtroQuadra, filtroModalidade, filtroData]);
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [carregarDados]);
 
   // Handlers de Mudança
   const handleChangePage = (event, newPage) => setPage(newPage);
