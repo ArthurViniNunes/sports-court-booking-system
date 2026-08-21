@@ -12,6 +12,8 @@ import ReservasPage from './pages/ReservasPage';
 import PerfilPage from './pages/PerfilPage';
 import AgendaPage from './pages/AgendaPage';
 import JogadoresPage from './pages/JogadoresPage';
+import { ToastContainer, toast } from 'react-toastify';
+
 
 function PrivateRoute({ children }) {
   const currentUser = authService.getCurrentUser();
@@ -64,6 +66,8 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <ToastContainer />
+
     </ThemeProvider>
   );
 }

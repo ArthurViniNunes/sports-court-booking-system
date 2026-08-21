@@ -13,8 +13,6 @@ import {
   DialogContent,
   DialogActions,
   DialogContentText,
-  Snackbar,
-  Alert,
   List,
   ListItem,
   ListItemText,
@@ -32,6 +30,7 @@ import {
   Edit,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { authService } from '../services/authService';
 import { jogadoresService } from '../features/jogadores/services/jogadoresService';
 import { reservasService } from '../features/reservas/services/reservasService';
@@ -91,7 +90,6 @@ export default function PerfilPage() {
   // Estados Gerais
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
-  const [feedback, setFeedback] = useState({ open: false, message: '', severity: 'success' });
 
   // Estados do Perfil
   const [isEditing, setIsEditing] = useState(false);
@@ -114,13 +112,6 @@ export default function PerfilPage() {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [totalReservas, setTotalReservas] = useState(0);
   const [ultimasReservas, setUltimasReservas] = useState([]);
-
-  // Função para mostrar feedback na tela
-  const mostrarFeedback = useCallback((message, severity = 'success') => {
-    setFeedback({ open: true, message, severity });
-  }, []);
-
-  const handleCloseFeedback = () => setFeedback(prev => ({ ...prev, open: false }));
 
   const carregarDadosPerfil = useCallback(async () => {
     try {
@@ -146,11 +137,11 @@ export default function PerfilPage() {
       setTotalReservas(reservasData.pagination.total);
     } catch (error) {
       console.error('Erro ao carregar perfil:', error);
-      mostrarFeedback('Não foi possível carregar os dados do perfil.', 'error');
+      toast.error('Não foi possível carregar os dados do perfil.');
     } finally {
       setLoading(false);
     }
-  }, [currentUser.id, mostrarFeedback]);
+  }, [currentUser.id]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -171,7 +162,7 @@ export default function PerfilPage() {
 
         window.dispatchEvent(new Event('profilePictureUpdated'));
 
-        mostrarFeedback('Foto de perfil atualizada com sucesso!');
+        toast.success('Foto de perfil atualizada com sucesso!');
       };
       reader.readAsDataURL(file);
     }
@@ -184,11 +175,10 @@ export default function PerfilPage() {
 
       setDadosPessoais(novosDados);
 
-
       setIsEditing(false);
-      mostrarFeedback('Dados atualizados com sucesso!');
+      toast.success('Dados atualizados com sucesso!');
     } catch (error) {
-      mostrarFeedback(error.response?.data?.error || 'Erro ao atualizar dados.', 'error');
+      toast.error(error.response?.data?.error || 'Erro ao atualizar dados.');
     } finally {
       setSalvando(false);
     }
@@ -206,7 +196,7 @@ export default function PerfilPage() {
 
   const handleSalvarSenha = async () => {
     if (senhas.novaSenha !== senhas.confirmarSenha) {
-      mostrarFeedback('A nova senha e a confirmação não coincidem.', 'error');
+      toast.error('A nova senha e a confirmação não coincidem.');
       return;
     }
     try {
@@ -217,9 +207,14 @@ export default function PerfilPage() {
       });
       setSenhas({ senhaAtual: '', novaSenha: '', confirmarSenha: '' });
       setOpenSenhaModal(false);
-      mostrarFeedback('Senha alterada com sucesso!');
+      
+      toast.success('Senha alterada com sucesso! Faça login novamente.');
+      
+      // Desloga o usuário e redireciona após sucesso
+      authService.logout();
+      navigate('/login');
     } catch (error) {
-      mostrarFeedback(error.response?.data?.error || 'Erro ao alterar a senha.', 'error');
+      toast.error(error.response?.data?.error || 'Erro ao alterar a senha.');
     } finally {
       setSalvando(false);
     }
@@ -234,7 +229,7 @@ export default function PerfilPage() {
       authService.logout();
       navigate('/login');
     } catch (error) {
-      mostrarFeedback(error.response?.data?.error || 'Erro ao excluir conta.', 'error');
+      toast.error(error.response?.data?.error || 'Erro ao excluir conta.');
       setSalvando(false);
       setOpenDeleteModal(false);
     }
@@ -533,12 +528,6 @@ export default function PerfilPage() {
         </DialogActions>
       </Dialog>
 
-      {/* 3. Snackbar de Feedback */}
-      <Snackbar open={feedback.open} autoHideDuration={5000} onClose={handleCloseFeedback} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-        <Alert severity={feedback.severity} variant="filled" onClose={handleCloseFeedback}>
-          {feedback.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

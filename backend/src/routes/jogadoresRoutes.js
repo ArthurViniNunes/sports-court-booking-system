@@ -11,6 +11,7 @@ router.get('/', requireAuth, requireAdmin, c.getAll);
 router.get('/:id', requireAuth, c.getById);
 router.post('/', requireAuth, requireAdmin, c.create);
 router.put('/:id', requireAuth, c.update);
+router.put('/:id/senha', requireAuth, c.updateSenha);
 router.delete('/:id', requireAuth, c.delete);
 
 export default router;

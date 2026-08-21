@@ -27,6 +27,13 @@ const controller = {
         return res.status(200).json(player);
     },
 
+    updateSenha: async (req, res, next) => {
+        const { id } = req.params;
+        const { senhaAtual, novaSenha } = req.body;
+        await service.updateSenha(id, { senhaAtual, novaSenha });
+        return res.status(200).json({ message: "Senha atualizada" });
+    },
+
     delete: async (req, res, next) => {
         const { id } = req.params;
         await service.delete(id);

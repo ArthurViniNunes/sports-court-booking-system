@@ -104,6 +104,48 @@ create: async (data) => {
         return prisma.jogador.update({ where: { id }, data: data });
     },
 
+    updateSenha: async (id, data) => {
+        if (!id) {
+            throw new AppError('ID do jogador é obrigatório para atualizar a senha', 400);
+        }
+
+        if (!data || !data.senhaAtual || !data.novaSenha) {
+            throw new AppError('Senha atual e nova senha são obrigatórias', 400);
+        }
+
+        if (data.novaSenha.length < 6) {
+            throw new AppError('A nova senha deve ter pelo menos 6 caracteres', 400);
+        }
+
+        const jogador = await prisma.jogador.findUnique({ where: { id } });
+
+        if (!jogador) {
+            throw new AppError('Jogador não encontrado', 404);
+        }
+
+        const senhaCorreta = await bcrypt.compare(data.senhaAtual, jogador.senha);
+
+        console.log(data.senhaAtual);
+        console.log(senhaCorreta);
+        
+        
+        if (!senhaCorreta) {
+            throw new AppError('Senha atual incorreta', 400);
+        }
+
+        if (data.senhaAtual === data.novaSenha) {
+            throw new AppError('A nova senha deve ser diferente da senha atual', 400);
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const senhaHash = await bcrypt.hash(data.novaSenha, salt);
+
+        await prisma.jogador.update({
+            where: { id },
+            data: { senha: senhaHash }
+        });
+    },
+
     delete: async (id) => {
         if (!id) {
             throw new AppError('ID do jogador é obrigatório para excluir', 400);
