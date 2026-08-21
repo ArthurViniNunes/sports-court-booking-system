@@ -170,6 +170,12 @@ export default function JogadoresPage() {
 
   const handleConfirmDelete = async () => {
     if (!jogadorParaExcluir) return;
+
+    if (jogadorParaExcluir.isAdmin) {
+      alert('Jogadores administradores só podem ser deletados manualmente.');
+      return;
+    }
+
     try {
       setLoading(true);
       await jogadoresService.delete(jogadorParaExcluir.id);
@@ -345,6 +351,7 @@ export default function JogadoresPage() {
         onConfirm={handleConfirmDelete}
         nome={jogadorParaExcluir?.nome}
         loading={loading}
+        isAdmin={Boolean(jogadorParaExcluir?.isAdmin)}
       />
     </Box>
   );

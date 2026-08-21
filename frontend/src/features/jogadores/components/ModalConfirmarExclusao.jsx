@@ -14,7 +14,8 @@ export default function ModalConfirmarExclusao({
   onClose,
   onConfirm,
   nome,
-  loading
+  loading,
+  isAdmin = false
 }) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
@@ -29,6 +30,11 @@ export default function ModalConfirmarExclusao({
           </strong>?
           <br />
           <br />
+          {isAdmin && (
+            <Typography variant="body2" sx={{ color: 'error.main', fontWeight: 600, display: 'block', mb: 1 }}>
+              Jogadores administradores só podem ser deletados manualmente.
+            </Typography>
+          )}
           <Typography variant="body2" color="text.secondary">
             Esta ação não pode ser desfeita.
           </Typography>
@@ -42,7 +48,7 @@ export default function ModalConfirmarExclusao({
           onClick={onConfirm}
           variant="contained"
           color="error"
-          disabled={loading}
+          disabled={loading || isAdmin}
         >
           {loading ? 'Excluindo...' : 'Confirmar'}
         </Button>

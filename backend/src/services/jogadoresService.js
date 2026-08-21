@@ -117,6 +117,10 @@ create: async (data) => {
             throw new AppError("Jogador não encontrado", 404);
         }
 
+        if (exists.isAdmin) {
+            throw new AppError('Jogadores administradores só podem ser deletados manualmente.', 400);
+        }
+
         await prisma.jogador.delete({
             where: { id }
         });
