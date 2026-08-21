@@ -138,6 +138,19 @@ const service = {
             });
         }
 
+        // Preenche os últimos 12 meses (inclusive os que tiveram 0 reservas)
+        const NOMES_MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const graficoCrescimentoAnual = [];
+        for (let i = 11; i >= 0; i--) {
+            const mesRef = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const chave = `${mesRef.getFullYear()}-${String(mesRef.getMonth() + 1).padStart(2, '0')}`;
+            const encontrado = reservasPorMesRaw.find(r => r.mes === chave);
+            graficoCrescimentoAnual.push({
+                mes: `${NOMES_MESES[mesRef.getMonth()]}/${String(mesRef.getFullYear()).slice(2)}`,
+                total: encontrado ? encontrado.total : 0
+            });
+        }
+
         // Preenche os 7 dias da semana (inclusive os sem nenhuma reserva)
         const graficoDiaSemana = NOMES_DIAS_SEMANA.map((nome, index) => {
             const encontrado = reservasPorDiaSemanaRaw.find(r => r.dow === index);
@@ -171,7 +184,8 @@ const service = {
             graficoQuadras,
             graficoTendencia,
             graficoDiaSemana,
-            graficoModalidades
+            graficoModalidades,
+            graficoCrescimentoAnual
         };
     }
 };

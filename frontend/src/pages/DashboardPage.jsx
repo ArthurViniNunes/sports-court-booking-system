@@ -12,7 +12,7 @@ import {
   QueryStats
 } from '@mui/icons-material';
 import {
-  BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
+  BarChart, Bar, AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts';
 import { dashboardService } from '../features/dashboard/services/dashboardService';
@@ -143,6 +143,31 @@ export default function DashboardPage() {
         </ResponsiveContainer>
       </Paper>
 
+      {/* Crescimento de Reservas ao Longo do Ano */}
+      <Paper elevation={0} sx={{ p: 3, border: '1px solid #DAD7CD', height: 320, mb: 3 }}>
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
+          <TrendingUp color="primary" />
+          <Typography variant="h3" sx={{ fontSize: '1.2rem' }}>Crescimento de Reservas (Últimos 12 Meses)</Typography>
+        </Stack>
+        <ResponsiveContainer width="100%" height="80%">
+          <LineChart data={stats?.graficoCrescimentoAnual} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E1E5DE" />
+            <XAxis dataKey="mes" axisLine={false} tickLine={false} tick={{ fill: '#6B705C', fontSize: 12 }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B705C', fontSize: 12 }} allowDecimals={false} />
+            <RechartsTooltip contentStyle={{ borderRadius: '8px', border: '1px solid #DAD7CD' }} />
+            <Line
+              type="monotone"
+              dataKey="total"
+              name="Reservas"
+              stroke="#2F3E46"
+              strokeWidth={3}
+              dot={{ r: 4, fill: '#2F3E46', strokeWidth: 0 }}
+              activeDot={{ r: 6 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </Paper>
+      
       {/* Gráficos Recharts */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
 
@@ -232,7 +257,7 @@ export default function DashboardPage() {
                 {stats.top5Jogadores.map((jogador, index) => (
                   <Box key={`${jogador.nome}-${index}`}>
                     <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, mr: 0.5 }}>
                         {index + 1}. {jogador.nome}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
