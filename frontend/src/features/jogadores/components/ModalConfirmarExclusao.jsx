@@ -5,8 +5,7 @@ import {
   DialogActions,
   DialogContentText,
   Button,
-  Typography,
-  Box
+  Typography
 } from '@mui/material';
 
 export default function ModalConfirmarExclusao({

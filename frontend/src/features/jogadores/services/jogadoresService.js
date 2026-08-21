@@ -25,6 +25,11 @@ export const jogadoresService = {
     return response.data;
   },
 
+  updateSenha: async (id, data) => {
+    const response = await api.put(`/jogadores/${id}/senha`, data);
+    return response.data;
+  },
+
   delete: async (id) => {
     await api.delete(`/jogadores/${id}`);
   },
