@@ -11,10 +11,16 @@ import QuadrasPage from './pages/QuadrasPage';
 import ReservasPage from './pages/ReservasPage';
 import PerfilPage from './pages/PerfilPage';
 import AgendaPage from './pages/AgendaPage';
+import JogadoresPage from './pages/JogadoresPage';
 
 function PrivateRoute({ children }) {
   const currentUser = authService.getCurrentUser();
   return currentUser ? children : <Navigate to="/login" replace />;
+}
+
+function AdminRoute({ children }) {
+  const currentUser = authService.getCurrentUser();
+  return currentUser?.isAdmin ? children : <Navigate to="/dashboard" replace />;
 }
 
 function PublicRoute({ children }) {
@@ -54,6 +60,7 @@ function App() {
             <Route path="quadras" element={<QuadrasPage />} />
             <Route path="agenda" element={<AgendaPage />} />
             <Route path="perfil" element={<PerfilPage />} />
+            <Route path="jogadores" element={<AdminRoute><JogadoresPage /></AdminRoute>} />
           </Route>
         </Routes>
       </BrowserRouter>

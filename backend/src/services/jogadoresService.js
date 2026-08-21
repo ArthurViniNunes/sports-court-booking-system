@@ -24,6 +24,38 @@ const service = {
         return player;
     },
 
+create: async (data) => {
+    if (!data.nome || !data.email || !data.telefone) {
+        throw new AppError('Nome, email e telefone são obrigatórios', 400);
+    }
+
+    // Valida o formato do email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+        throw new AppError('Email inválido', 400);
+    }
+
+    // Verifica se o email já está cadastrado
+    const emailExists = await prisma.jogador.findUnique({
+        where: { email: data.email }
+    });
+    if (emailExists) {
+        throw new AppError('Email já cadastrado', 400);
+    }
+
+    // Gera uma senha padrão para o jogador criado pelo admin
+    const senhaHash = await bcrypt.hash('123456', 10);
+
+    return await prisma.jogador.create({
+        data: {
+            nome: data.nome,
+            email: data.email,
+            telefone: data.telefone,
+            senha: senhaHash,
+            isAdmin: false
+        }
+    });
+    },
+
     update: async (id, jogador) => {
         if (!id) {
             throw new AppError('ID do jogador é obrigatório para atualizar', 400);
@@ -83,6 +115,10 @@ const service = {
 
         if (!exists) {
             throw new AppError("Jogador não encontrado", 404);
+        }
+
+        if (exists.isAdmin) {
+            throw new AppError('Jogadores administradores só podem ser deletados manualmente.', 400);
         }
 
         await prisma.jogador.delete({

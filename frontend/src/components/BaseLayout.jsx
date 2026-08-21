@@ -19,6 +19,7 @@ import {
   Home, 
   EventAvailable, 
   SportsTennis, 
+  People,
   Logout, 
   CalendarMonth, 
   Menu as MenuIcon 
@@ -35,13 +36,20 @@ export default function BaseLayout() {
   
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const currentUser = authService.getCurrentUser();
 
-  const menuItems = [
+  const fullMenuItems = [
     { text: 'Início', path: '/dashboard', icon: <Home /> },
     { text: 'Reservas', path: '/reservas', icon: <EventAvailable /> },
     { text: 'Quadras', path: '/quadras', icon: <SportsTennis /> },
+    { text: 'Jogadores', path: '/jogadores', icon: <People /> },
     { text: 'Agenda', path: '/agenda', icon: <CalendarMonth /> },
   ];
+
+  const menuItems = fullMenuItems.filter((item) => {
+    if (item.path === '/jogadores' && !currentUser?.isAdmin) return false;
+    return true;
+  });
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);

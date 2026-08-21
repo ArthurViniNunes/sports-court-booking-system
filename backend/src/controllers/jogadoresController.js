@@ -13,6 +13,12 @@ const controller = {
         const player = await service.getById(id);
         return res.status(200).json(player);
     },
+    
+    create: async (req, res, next) => {
+        const { nome, email, telefone } = req.body;
+        const jogador = await service.create({ nome, email, telefone });
+        return res.status(201).json(jogador);
+    },
 
     update: async (req, res, next) => {
         const { id } = req.params;
