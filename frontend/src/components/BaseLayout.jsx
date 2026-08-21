@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Box, 
   Drawer, 
@@ -22,7 +22,8 @@ import {
   People,
   Logout, 
   CalendarMonth, 
-  Menu as MenuIcon 
+  Menu as MenuIcon,
+  Person 
 } from '@mui/icons-material';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { authService } from '../services/authService';
@@ -37,6 +38,19 @@ export default function BaseLayout() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const currentUser = authService.getCurrentUser();
+
+const [profilePic, setProfilePic] = useState(localStorage.getItem(`profile_pic_${currentUser?.id}`) || '');
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setProfilePic(localStorage.getItem(`profile_pic_${currentUser?.id}`) || '');
+    };
+
+    window.addEventListener('profilePictureUpdated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profilePictureUpdated', handleProfileUpdate);
+    };
+  }, [currentUser?.id]);
 
   const fullMenuItems = [
     { text: 'Início', path: '/dashboard', icon: <Home /> },
@@ -179,10 +193,13 @@ export default function BaseLayout() {
 
             <Avatar
               alt="Perfil do Usuário"
-              src="https://mui.com/static/images/avatar/1.jpg"
+              src={profilePic ? profilePic : undefined}
               sx={{ cursor: 'pointer', width: 42, height: 42 }}
               onClick={() => handleNavigation('/perfil')}
-            />
+            >
+              {!profilePic && <Person />}
+            </Avatar>
+
           </Toolbar>
         </AppBar>
 

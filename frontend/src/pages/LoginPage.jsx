@@ -38,9 +38,11 @@ function LoginPage() {
     setLoading(true);
 
     try {
+      let loggedUser;
+
       if (isLogin) {
-        await authService.login(formData.email, formData.senha);
-        navigate('/dashboard');
+        const jogador = await authService.login(formData.email, formData.senha);
+        loggedUser = jogador;
       } else {
         await authService.register({
           nome: formData.nome,
@@ -49,8 +51,14 @@ function LoginPage() {
           senha: formData.senha
         });
         
-        await authService.login(formData.email, formData.senha);
+        const jogador = await authService.login(formData.email, formData.senha);
+        loggedUser = jogador;
+      }
+
+      if (loggedUser.isAdmin) {
         navigate('/dashboard');
+      } else {
+        navigate('/perfil');
       }
     }catch (error) {
         console.log(error);       
