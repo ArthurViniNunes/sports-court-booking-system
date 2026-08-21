@@ -21,7 +21,7 @@ import {
   TableRow,
 } from '@mui/material';
 import { Search, Add, Edit, Delete } from '@mui/icons-material';
-import { getJogadores, createJogador, updateJogador, deleteJogador } from '../services/api';
+import { jogadoresService } from '../features/jogadores/services/jogadoresService';
 import FormJogador from '../features/jogadores/components/FormJogador';
 import ModalConfirmarExclusao from '../features/jogadores/components/ModalConfirmarExclusao';
 
@@ -55,8 +55,7 @@ export default function JogadoresPage() {
   const carregarJogadores = async () => {
     setLoading(true);
     try {
-      const response = await getJogadores();
-      let dados = response.data;
+      let dados = await jogadoresService.getAll();
       if (searchTerm.trim()) {
         dados = dados.filter((jogador) =>
           jogador.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -114,7 +113,7 @@ export default function JogadoresPage() {
   const handleCreateSave = async () => {
     try {
       setLoading(true);
-      await createJogador(novoJogador);
+      await jogadoresService.create(novoJogador);
       handleCloseCreate();
       carregarJogadores();
     } catch (error) {
@@ -148,7 +147,7 @@ export default function JogadoresPage() {
   const handleEditSave = async () => {
     try {
       setLoading(true);
-      await updateJogador(jogadorEditando.id, formEdit);
+      await jogadoresService.update(jogadorEditando.id, formEdit);
       handleCloseEdit();
       carregarJogadores();
     } catch (error) {
@@ -173,7 +172,7 @@ export default function JogadoresPage() {
     if (!jogadorParaExcluir) return;
     try {
       setLoading(true);
-      await deleteJogador(jogadorParaExcluir.id);
+      await jogadoresService.delete(jogadorParaExcluir.id);
       handleCloseDelete();
       carregarJogadores();
     } catch (error) {
