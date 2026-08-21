@@ -124,10 +124,6 @@ create: async (data) => {
         }
 
         const senhaCorreta = await bcrypt.compare(data.senhaAtual, jogador.senha);
-
-        console.log(data.senhaAtual);
-        console.log(senhaCorreta);
-        
         
         if (!senhaCorreta) {
             throw new AppError('Senha atual incorreta', 400);

@@ -12,7 +12,7 @@ import ReservasPage from './pages/ReservasPage';
 import PerfilPage from './pages/PerfilPage';
 import AgendaPage from './pages/AgendaPage';
 import JogadoresPage from './pages/JogadoresPage';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 
 function PrivateRoute({ children }) {
@@ -20,14 +20,17 @@ function PrivateRoute({ children }) {
   return currentUser ? children : <Navigate to="/login" replace />;
 }
 
-function AdminRoute({ children }) {
-  const currentUser = authService.getCurrentUser();
-  return currentUser?.isAdmin ? children : <Navigate to="/dashboard" replace />;
-}
-
 function PublicRoute({ children }) {
   const currentUser = authService.getCurrentUser();
-  return currentUser ? <Navigate to="/dashboard" replace /> : children;
+  if (currentUser) {
+    return currentUser.isAdmin ? <Navigate to="/dashboard" replace /> : <Navigate to="/perfil" replace />;
+  }
+  return children;
+}
+
+function AdminRoute({ children }) {
+  const currentUser = authService.getCurrentUser();
+  return currentUser?.isAdmin ? children : <Navigate to="/perfil" replace />;
 }
 
 function App() {
@@ -48,21 +51,16 @@ function App() {
             }
           />
           
-          {/* Rotas Protegidas e Envolvidas pelo Layout */}
-          <Route 
-            path="/" 
-            element={
-              <PrivateRoute>
-                <BaseLayout />
-              </PrivateRoute>
-            }
-          >
-            <Route path="dashboard" element={<DashboardPage />} />
+
+          <Route path="/" element={<PrivateRoute><BaseLayout /></PrivateRoute>}>
+            {/* O Dashboard agora é exclusivo de Admins */}
+            <Route path="dashboard" element={<AdminRoute><DashboardPage /></AdminRoute>} />
+            <Route path="jogadores" element={<AdminRoute><JogadoresPage /></AdminRoute>} />
+            
             <Route path="reservas" element={<ReservasPage />} />
             <Route path="quadras" element={<QuadrasPage />} />
             <Route path="agenda" element={<AgendaPage />} />
             <Route path="perfil" element={<PerfilPage />} />
-            <Route path="jogadores" element={<AdminRoute><JogadoresPage /></AdminRoute>} />
           </Route>
         </Routes>
       </BrowserRouter>
