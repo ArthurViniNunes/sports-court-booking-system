@@ -18,6 +18,11 @@ function PrivateRoute({ children }) {
   return currentUser ? children : <Navigate to="/login" replace />;
 }
 
+function AdminRoute({ children }) {
+  const currentUser = authService.getCurrentUser();
+  return currentUser?.isAdmin ? children : <Navigate to="/dashboard" replace />;
+}
+
 function PublicRoute({ children }) {
   const currentUser = authService.getCurrentUser();
   return currentUser ? <Navigate to="/dashboard" replace /> : children;
@@ -55,7 +60,7 @@ function App() {
             <Route path="quadras" element={<QuadrasPage />} />
             <Route path="agenda" element={<AgendaPage />} />
             <Route path="perfil" element={<PerfilPage />} />
-            <Route path="jogadores" element={<JogadoresPage />} />
+            <Route path="jogadores" element={<AdminRoute><JogadoresPage /></AdminRoute>} />
           </Route>
         </Routes>
       </BrowserRouter>
