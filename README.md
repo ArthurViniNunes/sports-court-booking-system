@@ -1,195 +1,278 @@
-# 🏟️ Sistema de Agendamento de Quadras Esportivas
+# 🏟️ QuadraFácil — Sistema de Agendamento de Quadras Esportivas
 
-Projeto desenvolvido como parte do desafio **DFS-2026.2** do programa Avanti (Atlântico). O objetivo do sistema é facilitar o gerenciamento de agendas de quadras esportivas em bairros, condomínios ou escolas, evitando conflitos de horários e simplificando o processo de reserva.
+Projeto full stack desenvolvido pela **Squad 03** no desafio **DFS-2026.2** do programa **Avanti — Atlântico**.
 
-## 🛠️ Tecnologias Utilizadas
+O QuadraFácil centraliza jogadores, quadras, disponibilidade e reservas. O sistema possui autenticação, perfis de acesso, prevenção de conflitos de horário, agenda, perfil do usuário e dashboard administrativo.
 
-### Backend
-- **Node.js** com **Express**
-- **Prisma ORM**
-- **PostgreSQL** (Banco de dados relacional)
+## Funcionalidades
 
-### Frontend
-- **ReactJS**
+### Jogador
 
----
+- Criar uma conta e autenticar-se.
+- Consultar quadras e sua agenda por data.
+- Criar e atualizar reservas.
+- Consultar suas reservas com paginação e filtros.
+- Consultar e atualizar o perfil e alterar a senha.
 
-## 🚀 Como Executar o Projeto
+### Administrador
 
-### Pré-requisitos
-Antes de começar, você precisará ter instalado em sua máquina:
-- [Node.js](https://nodejs.org/) (versão LTS recomendada)
-- [PostgreSQL](https://www.postgresql.org/) ativo e rodando localmente[cite: 1]
+- Acessar indicadores do dashboard.
+- Gerenciar jogadores e quadras.
+- Consultar todas as reservas e excluí-las.
 
-### 1. Configurando o Backend
+## Tecnologias
 
-1. Navegue até a pasta do backend:
-   ```bash
-   cd backend
-   ```
+**Backend:** Node.js, Express 5, Prisma ORM, PostgreSQL, JWT, bcrypt, Helmet e CORS.
 
-2. Instale as dependências:
+**Frontend:** React 19, Vite, Material UI, React Router, Axios, React Big Calendar, Recharts e React Toastify.
 
-   ```bash
-   npm install
-   ```
+**Organização:** monorepo com npm Workspaces; backend em camadas; frontend organizado por páginas, componentes e módulos de domínio.
 
-3. Crie um arquivo `.env` na raiz da pasta `backend` e configure as variáveis de ambiente:
+## Arquitetura
 
-   ```env
-   DATABASE_URL="postgresql://usuario:senha@localhost:5432/agendamento_quadras"
-   PORT=3000
-   BACKEND_URL=http://localhost
-   ```
-
-4. Execute as migrações do banco de dados:
-
-   ```bash
-   npx prisma migrate dev
-   ```
-5. (Opcional) Execute o seed para popular dados fictícios no banco de dados:
-
-   ```bash
-   npm run db:seed
-   ```
-   
-
-6. (Opcional) Abra o Prisma Studio para visualizar o banco:
-
-   ```bash
-   npx prisma studio
-   ```
-
-7. Inicie o servidor:
-
-   ```bash
-   npm run dev
-   ```
-
-O backend estará disponível em:
+- **Routes:** endpoints, autenticação e autorização.
+- **Controllers:** entrada HTTP e respostas.
+- **Services:** validações e regras de negócio.
+- **Prisma:** persistência no PostgreSQL.
+- **Middlewares:** autenticação, autorização e tratamento de erros.
 
 ```text
-http://localhost:3000
+React → API REST/Express → Routes → Controllers → Services → Prisma → PostgreSQL
 ```
 
----
+## Modelo de dados
 
-### 2. Configurando o Frontend
+- **Jogador:** dados pessoais, credenciais e perfil administrativo.
+- **Quadra:** nome, modalidade e localização.
+- **Reserva:** data, início, fim, jogador e quadra.
 
-Para configurar o frontend basta rodar o comando ```bash npm install```na pasta do frontend.
+Uma quadra e um jogador podem possuir várias reservas. A aplicação verifica qualquer interseção de horários antes de criar ou atualizar uma reserva. O banco também impede intervalos idênticos para a mesma quadra e data.
 
-Entre na pasta do frontend para rodar o projeto com o comando ```bash npm run dev```.
+## Pré-requisitos
 
----
+- Node.js compatível com as dependências do projeto
+- npm
+- PostgreSQL
 
-### 3. (Opcional) Rode com o mono repo.
-Depois de configurar o backend, caso deseje rodar o projeto em um único terminal, basta rodar os comandos na raiz do repositório.
+## Instalação e configuração
 
-```bash npm install``` caso não tenha instalado as dependências ainda e ```bash npm run dev```para rodar tanto o backend quanto o frontend.
-
-## 📂 Estrutura do Projeto
-
-```text
-├── backend
-│   ├── src
-│   │   ├── controllers
-│   │   ├── database
-│   │   ├── middlewares
-│   │   ├── routes
-│   │   ├── services
-│   │   └── utils
-│   ├── prisma
-│   └── package.json
-│ 
-├── frontend/                 # Aplicação ReactJS (Vite)
-│   ├── src/
-│   │   ├── assets/           # Imagens e arquivos estáticos
-│   │   ├── components/       # Componentes visuais genéricos
-│   │   ├── features/         # Módulos por domínio (jogadores, quadras, reservas)
-│   │   ├── pages/            # Páginas e roteamento
-│   │   └── services/         # Configurações do Axios e chamadas de API
-│   └── package.json          # Dependências do frontend
-│
-├── package.json              # Gerenciador do Monorepo (Workspaces)
-└── README.md
+```bash
+git clone https://github.com/ArthurViniNunes/sports-court-booking-system.git
+cd sports-court-booking-system
+npm install
 ```
 
----
+Crie `backend/.env`:
 
-## 🏗️ Arquitetura
+```env
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/agendamento_quadras"
+PORT=3000
+BACKEND_URL=http://localhost
+JWT_SECRET=substitua-por-uma-chave-segura
+```
 
-O backend segue uma arquitetura em camadas:
+Opcionalmente, crie `frontend/.env` se a API não estiver em `http://localhost:3000`:
 
-- **Routes**: definem os endpoints da API.
-- **Controllers**: recebem as requisições HTTP e retornam as respostas.
-- **Services**: concentram as regras de negócio da aplicação.
-- **Prisma ORM**: responsável pela comunicação com o banco de dados PostgreSQL.
-- **Middlewares**: tratamento centralizado de erros e funcionalidades compartilhadas.
+```env
+VITE_API_URL=http://localhost:3000
+```
 
-Essa separação facilita a manutenção, os testes e a evolução do projeto.
+Prepare o banco:
 
----
+```bash
+npm run db:migrate --workspace=backend
+npm run db:seed --workspace=backend
+```
 
-## 📡 API
+O seed cria usuários, quadras e reservas fictícias. As contas usam a senha `senha123`, inclusive `admin@admin.com` e `admin2@admin.com`. Essas credenciais são apenas para desenvolvimento.
 
-A API segue o padrão REST.
+## Execução
 
-### Usuários
+Inicie os dois workspaces:
 
-| Método | Endpoint | Descrição |
-|---------|----------|-----------|
-| POST | `/usuarios` | Cadastra um usuário |
-| GET | `/usuarios` | Lista usuários |
-| GET | `/usuarios/:id` | Busca um usuário |
-| PUT | `/usuarios/:id` | Atualiza um usuário |
-| DELETE | `/usuarios/:id` | Remove um usuário |
+```bash
+npm run dev
+```
+
+Ou execute-os separadamente:
+
+```bash
+npm run dev --workspace=backend
+npm run dev --workspace=frontend
+```
+
+Por padrão, a API responde em `http://localhost:3000`. Verifique com `GET /health`.
+
+## Autenticação e permissões
+
+O login devolve um JWT válido por um dia. Nas rotas protegidas, envie:
+
+```http
+Authorization: Bearer SEU_TOKEN
+```
+
+- **Público:** sem token.
+- **Autenticado:** token válido.
+- **Administrador:** token válido com `isAdmin: true`.
+
+## Rotas da API
+
+### Saúde e autenticação
+
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| GET | `/health` | Público | Verifica a API. |
+| POST | `/auth/register` | Público | Cadastra um jogador comum. |
+| POST | `/auth/login` | Público | Autentica e devolve token e jogador. |
+
+Cadastro:
+
+```json
+{
+  "nome": "Arthur Nunes",
+  "email": "arthur@example.com",
+  "telefone": "85999999999",
+  "senha": "senha123"
+}
+```
+
+### Jogadores
+
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| GET | `/jogadores` | Administrador | Lista jogadores. |
+| GET | `/jogadores/:id` | Autenticado | Busca um jogador. |
+| POST | `/jogadores` | Administrador | Cria jogador com senha inicial `123456`. |
+| PUT | `/jogadores/:id` | Autenticado | Atualiza nome, e-mail e telefone. |
+| PUT | `/jogadores/:id/senha` | Autenticado | Altera a senha. |
+| DELETE | `/jogadores/:id` | Autenticado | Exclui um jogador, conforme regras do service. |
+
+Alteração de senha:
+
+```json
+{
+  "senhaAtual": "senha123",
+  "novaSenha": "novaSenhaSegura"
+}
+```
 
 ### Quadras
 
-| Método | Endpoint | Descrição |
-|---------|----------|-----------|
-| GET | `/quadras` | Lista todas as quadras |
-| GET | `/quadras/:id` | Busca uma quadra por ID |
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| POST | `/quadras` | Administrador | Cadastra uma quadra. |
+| GET | `/quadras` | Autenticado | Lista as quadras. |
+| GET | `/quadras/:id` | Autenticado | Busca uma quadra. |
+| PUT | `/quadras/:id` | Administrador | Atualiza uma quadra. |
+| DELETE | `/quadras/:id` | Administrador | Exclui uma quadra. |
 
-
+```json
+{
+  "nome": "Quadra Central",
+  "modalidade": "Tênis",
+  "localizacao": "Setor A"
+}
+```
 
 ### Reservas
 
-| Método | Endpoint | Descrição |
-|---------|----------|-----------|
-| POST | `/reservas` | Cadastra uma reserva |
-| GET | `/reservas` | Lista todas reservas |
-| GET | `/reservas/:quadraId` | Busca todas reservas de uma quadra |
-| GET | `/reservas/:id` | Busca uma reserva |
-| PUT | `/reservas/:id` | Atualiza uma reserva |
-| DELETE | `/reservas/:id` | Remove uma reserva |
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| POST | `/reservas` | Autenticado | Cria uma reserva e verifica conflitos. |
+| GET | `/reservas` | Administrador | Lista todas as reservas. |
+| GET | `/reservas/quadra/:quadraId` | Autenticado | Lista por quadra; aceita `data`. |
+| GET | `/reservas/jogador/:jogadorId` | Autenticado | Lista por jogador com paginação e filtros. |
+| GET | `/reservas/:id` | Autenticado | Busca uma reserva. |
+| PUT | `/reservas/:id` | Autenticado | Atualiza e verifica conflitos. |
+| DELETE | `/reservas/:id` | Administrador | Exclui uma reserva. |
 
+```json
+{
+  "jogadorId": "uuid-do-jogador",
+  "quadraId": "uuid-da-quadra",
+  "data": "2026-08-25T00:00:00.000Z",
+  "horarioInicio": "2026-08-25T18:00:00.000Z",
+  "horarioFim": "2026-08-25T19:00:00.000Z"
+}
+```
 
-**TO-DO**
+Filtros de `GET /reservas/quadra/:quadraId`:
 
+- `data`: data no formato `YYYY-MM-DD`.
 
+Filtros de `GET /reservas/jogador/:jogadorId`:
 
-**TO-DO**
+| Parâmetro | Padrão | Descrição |
+|---|---|---|
+| `page` | `1` | Página. |
+| `limit` | `5` | Registros por página. |
+| `quadraId` | — | Quadra. |
+| `modalidade` | — | Modalidade. |
+| `search` | — | Nome ou modalidade da quadra. |
+| `data` | — | Data em `YYYY-MM-DD`. |
 
----
+Na consulta por quadra, os dados pessoais são mascarados quando o usuário não é dono da reserva nem administrador.
 
-## 🧪 Testando a API
+### Dashboard
 
-Você pode utilizar ferramentas como:
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| GET | `/dashboard/stats` | Administrador | Retorna indicadores e séries do dashboard. |
 
-- Postman
-- Insomnia
-- Thunder Client (VS Code)
+Os indicadores incluem totais, variação mensal, destaques e distribuições por quadra, modalidade, dia da semana e período.
 
----
+## Estrutura
 
-## 👥 Equipe
+```text
+├── backend
+│   ├── prisma
+│   └── src
+│       ├── controllers
+│       ├── database
+│       ├── middlewares
+│       ├── routes
+│       ├── services
+│       └── utils
+├── frontend
+│   ├── public
+│   └── src
+│       ├── components
+│       ├── features
+│       ├── pages
+│       ├── services
+│       └── theme
+├── package.json
+└── README.md
+```
 
-Projeto desenvolvido durante o programa **Avanti – Atlântico**, como parte do desafio **DFS-2026.2**.
+## Scripts
 
-**Squad 03**:
-- [Arthur Vinicius Carneiro Nunes](https://github.com/arthurvininunes)
+| Comando | Descrição |
+|---|---|
+| `npm run dev` | Inicia os dois workspaces. |
+| `npm run lint` | Executa os lints disponíveis. |
+| `npm run db:migrate --workspace=backend` | Executa migrations. |
+| `npm run db:reset --workspace=backend` | Reinicia o banco. |
+| `npm run db:seed --workspace=backend` | Popula dados de demonstração. |
+| `npm run build --workspace=frontend` | Compila o frontend. |
+
+## Limitações e próximos passos
+
+- Adicionar testes automatizados e integração contínua.
+- Publicar uma especificação OpenAPI.
+- Restringir no backend a alteração/exclusão de jogadores ao próprio usuário ou a administradores.
+- Restringir no backend a atualização de reservas ao proprietário ou a administradores.
+- Não retornar hashes de senha nas consultas de jogadores.
+- Aprimorar validação e normalização dos dados.
+
+## Equipe
+
+- [Arthur Vinicius Carneiro Nunes](https://github.com/ArthurViniNunes)
 - [Augusto Cesar do Nascimento](https://github.com/SpawNCGK)
 - [Francisco Rodrigo Rocha Mota](https://github.com/rodi38)
 - [Ana Cecília de Oliveira](https://github.com/anaceciliaa)
 - [Jusiê Barbosa da Silva](https://github.com/JusieBarbosa)
+
+## Licença
+
+O repositório não informa uma licença. Consulte a equipe antes de reutilizar o código fora do projeto.
