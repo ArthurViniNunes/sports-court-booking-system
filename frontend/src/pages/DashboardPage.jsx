@@ -172,18 +172,26 @@ export default function DashboardPage() {
       <Grid container spacing={3} sx={{ mb: 3 }}>
 
         {/* Gráfico de Barras: Distribuição por Quadra */}
-        <Grid item xs={12} md={7}>
-          <Paper elevation={0} sx={{ p: 3, border: '1px solid #DAD7CD', height: 380 }}>
+        <Grid item xs={12} md={8}>
+          <Paper elevation={0} sx={{ p: 3, border: '1px solid #DAD7CD', height: 380, width: '100%' }}>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
               <TrendingUp color="primary" />
               <Typography variant="h3" sx={{ fontSize: '1.2rem' }}>Volume de Reservas por Quadra</Typography>
             </Stack>
             <ResponsiveContainer width="100%" height="85%">
-              <BarChart data={stats?.graficoQuadras} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={stats?.graficoQuadras} margin={{ top: 10, right: 10, left: -20, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E1E5DE" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B705C' }} />
+                <XAxis dataKey="name" hide axisLine={false} tickLine={false} tick={false} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B705C' }} allowDecimals={false} />
-                <RechartsTooltip cursor={{ fill: 'rgba(58, 90, 64, 0.05)' }} contentStyle={{ borderRadius: '8px', border: '1px solid #DAD7CD' }} />
+                <RechartsTooltip
+                  cursor={{ fill: 'rgba(58, 90, 64, 0.05)' }}
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #DAD7CD' }}
+                  labelFormatter={(label) => label}
+                  formatter={(value, name, props) => [
+                    `${value} reserva${Number(value) === 1 ? '' : 's'}`,
+                    props?.payload?.name || 'Quadra'
+                  ]}
+                />
                 <Bar dataKey="value" fill="#3A5A40" radius={[4, 4, 0, 0]} name="Qtd de Reservas" />
               </BarChart>
             </ResponsiveContainer>
@@ -230,11 +238,19 @@ export default function DashboardPage() {
               <Typography variant="h3" sx={{ fontSize: '1.2rem' }}>Movimento por Dia da Semana</Typography>
             </Stack>
             <ResponsiveContainer width="100%" height="85%">
-              <BarChart data={stats?.graficoDiaSemana} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={stats?.graficoDiaSemana} margin={{ top: 10, right: 10, left: -20, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E1E5DE" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B705C' }} />
+                <XAxis dataKey="name" hide axisLine={false} tickLine={false} tick={false} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B705C' }} allowDecimals={false} />
-                <RechartsTooltip cursor={{ fill: 'rgba(58, 90, 64, 0.05)' }} contentStyle={{ borderRadius: '8px', border: '1px solid #DAD7CD' }} />
+                <RechartsTooltip
+                  cursor={{ fill: 'rgba(58, 90, 64, 0.05)' }}
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #DAD7CD' }}
+                  labelFormatter={(label) => label}
+                  formatter={(value, name, props) => [
+                    `${value} reserva${Number(value) === 1 ? '' : 's'}`,
+                    props?.payload?.name || 'Dia'
+                  ]}
+                />
                 <Bar dataKey="total" fill="#588157" radius={[4, 4, 0, 0]} name="Qtd de Reservas" />
               </BarChart>
             </ResponsiveContainer>
